@@ -14,9 +14,12 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/ssl.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string_regex.hpp>
 
 #include "../Event/Event.hpp"
 
@@ -24,20 +27,23 @@ using boost::asio::ip::tcp;
 
 typedef struct {
 	std::string body;
-	std::string headers;
+	std::unordered_map<std::string, std::string> headers;
 	unsigned int status_code;
+	void print_headers() const;
 } Response;
 
 
 class AlpacaServiceHTTP {
 public:
 	static void get(std::string path, void (*callback)(Response *));
+	static void post(const std::string path, void (*callback)(Response *));
 
 	AlpacaServiceHTTP();
 
 	virtual ~AlpacaServiceHTTP();
 
     void _get(std::string path, void (*callback)(Response *));
+    void _post(std::string path, void (*callback)(Response *));
 
     /*
     void post(std::string path){
@@ -46,9 +52,9 @@ public:
 
 
 private:
-    std::string host = "paper-api.alpaca.markets";
-    std::string keyId = "PKHKND8U0PRCWVVRRRK0";
-    std::string secret = "zyGVtBINUWR/nQiC3wpVZqsbFZ80kwtXAGtqVe0o";
+    const std::string host = "paper-api.alpaca.markets";
+    const std::string keyId = "PKHKND8U0PRCWVVRRRK0";
+    const std::string secret = "zyGVtBINUWR/nQiC3wpVZqsbFZ80kwtXAGtqVe0o";
 
     boost::asio::ssl::context context;
 	boost::asio::io_context io_context;

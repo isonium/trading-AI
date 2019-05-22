@@ -18,12 +18,14 @@ using json = nlohmann::json;
 using namespace std;
 
 void cb(Response * data){
-	std::cout << data->body;
+	//std::cout << data->body << std::endl;
+	data->print_headers();
+	std::cout << data->headers["Vary"] << std::endl;
 }
 
 int main(){
 
-    AlpacaServiceHTTP::get("/v1/account", &cb);
+    AlpacaServiceHTTP::get("/v1/assets", &cb);
     cin.get();
 	return 0;
 }

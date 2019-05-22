@@ -7,12 +7,24 @@
 
 #include "AlpacaServiceHTTP.h"
 
+void Response::print_headers() const {
+	for(auto it = headers.begin(); it != headers.end(); ++it){
+		std::cout << it->first << ": " << it->second << std::endl;
+	}
+}
 
 void AlpacaServiceHTTP::get(std::string path, void (*callback)(Response *))
 {
 	AlpacaServiceHTTP service;
 	service._get(path, callback);
 }
+
+void AlpacaServiceHTTP::post(std::string path, void (*callback)(Response *))
+{
+	AlpacaServiceHTTP service;
+	service._post(path, callback);
+}
+
 
 
 AlpacaServiceHTTP::AlpacaServiceHTTP():
@@ -33,6 +45,12 @@ AlpacaServiceHTTP::~AlpacaServiceHTTP() {
 void AlpacaServiceHTTP::_get(std::string path, void (*callback)(Response *))
 {
 	fetch(path, "GET ", callback);
+	io_context.run();
+}
+
+void AlpacaServiceHTTP::_post(std::string path, void (*callback)(Response *))
+{
+	fetch(path, "POST ", callback);
 	io_context.run();
 }
 
@@ -62,7 +80,7 @@ void AlpacaServiceHTTP::on_resolve(const boost::system::error_code& err, const t
 	if(err) handle_error("Resolve", err);
 
 
-    boost::asio::async_connect(socket.lowest_layer(), endpoints,
+    boost::asio::async_connect(socket.lowest_layer(), endpoints, // @suppress("Invalid arguments")
     		boost::bind(&AlpacaServiceHTTP::on_connect, this, boost::asio::placeholders::error));
 }
 
@@ -108,9 +126,24 @@ void AlpacaServiceHTTP::read_lines(const boost::system::error_code& err, boost::
 	}
 
 	// Read the response headers, which are terminated by a blank line.
-	boost::asio::async_read_until(socket, *response, "\r\n\r\n",
+	boost::asio::async_read_until(socket, *response, "\r\n",
 								  boost::bind(&AlpacaServiceHTTP::read_headers, this,
 											  boost::asio::placeholders::error, response));
+}
+
+std::vector<std::string> * get_header_pair(std::string const header){
+	std::vector<std::string> * pair = new std::vector<std::string>();
+	int size = header.size();
+	for(int it = 0; it < size-1; ++it){
+		if(header[it] == ':' && header[it+1] == ' '){
+			std::string first = header.substr(0, it);
+			std::string second = header.substr(it+2, size-it-3);
+			pair->push_back(first);
+			pair->push_back(second);
+			return pair;
+		}
+	}
+	return NULL;
 }
 
 void AlpacaServiceHTTP::read_headers(const boost::system::error_code& err, boost::asio::streambuf* response)
@@ -119,8 +152,13 @@ void AlpacaServiceHTTP::read_headers(const boost::system::error_code& err, boost
         // Process the response headers.
 
 	std::string header;
-	while (std::getline(response_stream, header) && header != "\r")
-		res.headers += header;
+	std::vector<std::string> tokens;
+	std::vector<std::string> * pair_ptr;
+	while (std::getline(response_stream, header) && header != "\r"){
+		pair_ptr = get_header_pair(header);
+		res.headers[pair_ptr->at(0)] = pair_ptr->at(1);
+	}
+	delete pair_ptr;
 
 	// Write whatever content we already have to output.
 	if (response->size() > 0)
@@ -135,21 +173,25 @@ void AlpacaServiceHTTP::read_headers(const boost::system::error_code& err, boost
 
 
 void AlpacaServiceHTTP::read_body(const boost::system::error_code& err, boost::asio::streambuf* response){
-    if (err){
+	if (!err){
+		boost::asio::async_read(socket, *response,
+								boost::asio::transfer_at_least(1),
+								boost::bind(&AlpacaServiceHTTP::read_body, this,
+											boost::asio::placeholders::error, response));
+	}
+	else if(err == boost::asio::error::eof){
+		std::string body((std::istreambuf_iterator<char>(response)), std::istreambuf_iterator<char>() );
+		res.body = body;
 		event.emit(&res);
 		return;
-    }
-    std::string temp;
-	response_stream >> temp;
-	res.body += temp;
-	boost::asio::async_read(socket, *response,
-							boost::asio::transfer_at_least(1),
-							boost::bind(&AlpacaServiceHTTP::read_body, this,
-										boost::asio::placeholders::error, response));
+	}
+	else {
+		handle_error("Error while reading response", err);
+	}
 }
 
 void AlpacaServiceHTTP::handle_error(std::string what, boost::system::error_code ec){
-	std::cerr << what << ": " << ec.message() << " [" << ec.value() << " ]" << std::endl;
+	std::cerr << what << ": " << ec.message() << " [" << ec.value() << "]" << std::endl;
     throw ec.message();
 }
 
