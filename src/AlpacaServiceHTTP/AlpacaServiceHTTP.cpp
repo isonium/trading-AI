@@ -13,20 +13,6 @@ void Response::print_headers() const {
 	}
 }
 
-void AlpacaServiceHTTP::get(std::string path, void (*callback)(Response *))
-{
-	AlpacaServiceHTTP service;
-	service._get(path, callback);
-}
-
-void AlpacaServiceHTTP::post(std::string path, void (*callback)(Response *))
-{
-	AlpacaServiceHTTP service;
-	service._post(path, callback);
-}
-
-
-
 AlpacaServiceHTTP::AlpacaServiceHTTP():
 	context(boost::asio::ssl::context::sslv23),
 	resolver(io_context),
@@ -40,40 +26,6 @@ AlpacaServiceHTTP::AlpacaServiceHTTP():
 
 AlpacaServiceHTTP::~AlpacaServiceHTTP() {
 	// TODO Auto-generated destructor stub
-}
-
-void AlpacaServiceHTTP::_get(std::string path, void (*callback)(Response *))
-{
-	fetch(path, "GET ", callback);
-	io_context.run();
-}
-
-void AlpacaServiceHTTP::_post(std::string path, void (*callback)(Response *))
-{
-	fetch(path, "POST ", callback);
-	io_context.run();
-}
-
-
-void AlpacaServiceHTTP::fetch(const std::string path, const std::string method, void (*callback)(Response *))
-{
-	//make request
-	event.addListener(callback);
-
-	std::ostream request_stream(&request_buffer);
-	request_stream << method << path << " HTTP/1.0\r\n";
-	request_stream << "Host: " << host << "\r\n";
-	request_stream << "Accept: */*\r\n";
-	request_stream << "APCA-API-KEY-ID: " << keyId << "\r\n";
-	request_stream << "APCA-API-SECRET-KEY: " << secret << "\r\n";
-	request_stream << "Connection: close\r\n\r\n";
-
-	// Find endpoint
-
-	resolver.async_resolve(host, "https",
-					boost::bind(&AlpacaServiceHTTP::on_resolve, this,
-					boost::asio::placeholders::error,
-					boost::asio::placeholders::results));
 }
 
 void AlpacaServiceHTTP::on_resolve(const boost::system::error_code& err, const tcp::resolver::results_type& endpoints) {
@@ -143,6 +95,7 @@ std::vector<std::string> * get_header_pair(std::string const header){
 			return pair;
 		}
 	}
+	delete pair;
 	return NULL;
 }
 
@@ -161,8 +114,6 @@ void AlpacaServiceHTTP::read_headers(const boost::system::error_code& err, boost
 	delete pair_ptr;
 
 	// Write whatever content we already have to output.
-	if (response->size() > 0)
-		response_stream >> res.body;
 
 	// Start reading remaining data until EOF.
 	boost::asio::async_read(socket, *response,

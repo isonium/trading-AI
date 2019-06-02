@@ -8,9 +8,11 @@ RM := rm
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include src/Train/subdir.mk
 -include src/Trader/subdir.mk
 -include src/Stock/subdir.mk
 -include src/Simulation/subdir.mk
+-include src/NeuralNetwork/subdir.mk
 -include src/AlpacaServiceWS/subdir.mk
 -include src/AlpacaServiceHTTP/subdir.mk
 -include src/subdir.mk

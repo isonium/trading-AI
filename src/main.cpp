@@ -10,22 +10,11 @@
 #include <string>
 #include <nlohmann/json.hpp>
 
-#include "Simulation/Simulation.h"
-#include "Trader/Trader.h"
-#include "AlpacaServiceHTTP/AlpacaServiceHTTP.h"
-
-using json = nlohmann::json;
-using namespace std;
-
-void cb(Response * data){
-	//std::cout << data->body << std::endl;
-	data->print_headers();
-	std::cout << data->headers["Vary"] << std::endl;
-}
+#include "Train/Train.h"
 
 int main(){
-
-    AlpacaServiceHTTP::get("/v1/assets", &cb);
+	Train train(3);
+	train.load_data();
     cin.get();
 	return 0;
 }

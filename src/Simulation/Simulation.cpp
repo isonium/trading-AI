@@ -10,30 +10,26 @@
 const string EVENT_TICK = "tick";
 
 Simulation::Simulation() {
-	// TODO Auto-generated constructor stub
-
+	_stock = {
+		"Apple", "AAPL", 0
+	};
 }
 
 Simulation::~Simulation() {
 	// TODO Auto-generated destructor stub
 }
 
-void Simulation::on(std::string eventName, void (* function)(void *)){
-	if(eventName == EVENT_TICK){
-		tickEvent.addListener(function);
-	}
-	else{
-		throw "Invalid event name";
-	}
+void Simulation::on_tick(boost::function<void (stock::Candle *)> function){
+	tickEvent.addListener(function);
 }
 
 void Simulation::tick() const{
 	tickEvent.emit();
 }
 
-void Simulation::tick(void * newData) const{
-	tickEvent.emit(newData);
+void Simulation::tick(stock::Candle * c) {
+	_stock.value = c->close;
+	tickEvent.emit(c);
 }
-
 
 

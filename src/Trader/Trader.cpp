@@ -42,3 +42,13 @@ void Trader::sellStock(stock::Stock * const stockPtr, const long quantity){
 	portfolio.removeStocks(stockPtr->ticker, quantity);
 	bank += quantity * stockPtr->value;
 }
+
+
+void Trader::init_training(){
+	simulation->on_tick(boost::bind(&Trader::decide, this, boost::placeholders::_1));
+}
+
+void Trader::decide(stock::Candle * c){
+	std::cout << c->close << std::endl;
+}
+

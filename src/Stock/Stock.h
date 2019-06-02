@@ -12,14 +12,24 @@
 #include <vector>
 #include <string>
 
+#include <boost/function.hpp>
+
 namespace stock{
 
 	typedef struct {
-		const std::string name;
-		const std::string ticker;
+		std::string name;
+		std::string ticker;
 		long double value;
-		long double volatility;
 	} Stock;
+
+	typedef struct {
+		const float open;
+		const float close;
+		const float high;
+		const float low;
+		const unsigned long volume;
+		const unsigned long timestamp;
+	} Candle;
 
 	typedef struct {
 		Stock * const stock;

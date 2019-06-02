@@ -18,8 +18,10 @@ OBJS :=
 SUBDIRS := \
 src/AlpacaServiceHTTP \
 src/AlpacaServiceWS \
+src/NeuralNetwork \
 src/Simulation \
 src/Stock \
 src/Trader \
+src/Train \
 src \
 

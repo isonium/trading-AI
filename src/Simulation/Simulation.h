@@ -9,7 +9,10 @@
 #define SIMULATION_H_
 
 #include <string>
+#include <iostream>
+
 #include "../Event/Event.hpp"
+#include "../Stock/Stock.h"
 
 class Simulation {
 public:
@@ -17,11 +20,12 @@ public:
 	virtual ~Simulation();
 
 	void tick() const;
-	void tick(void * newData) const;
-	void on(std::string eventName, void (* function)(void *));
+	void tick(stock::Candle * c);
+	void on_tick(boost::function<void (stock::Candle *)>);
 
 private:
-	Event<void *> tickEvent;
+	Event<stock::Candle *> tickEvent;
+	stock::Stock _stock;
 };
 
 #endif /* SIMULATION_H_ */

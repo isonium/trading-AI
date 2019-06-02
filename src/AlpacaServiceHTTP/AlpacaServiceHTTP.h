@@ -25,6 +25,7 @@
 
 using boost::asio::ip::tcp;
 
+
 typedef struct {
 	std::string body;
 	std::unordered_map<std::string, std::string> headers;
@@ -35,24 +36,40 @@ typedef struct {
 
 class AlpacaServiceHTTP {
 public:
-	static void get(std::string path, void (*callback)(Response *));
-	static void post(const std::string path, void (*callback)(Response *));
+	template<class CBtype>
+	static void get(std::string path, CBtype cb)
+	{
+		AlpacaServiceHTTP service;
+		service._get(path, cb);
+	}
 
-	AlpacaServiceHTTP();
+	template<class CBtype>
+	static void post(const std::string path, CBtype cb)
+	{
+		AlpacaServiceHTTP service;
+		service._post(path, cb);
+	}
 
 	virtual ~AlpacaServiceHTTP();
 
-    void _get(std::string path, void (*callback)(Response *));
-    void _post(std::string path, void (*callback)(Response *));
+	template<class CBtype>
+    void _get(std::string path, CBtype cb)
+	{
+		fetch(path, "GET ", cb);
+		io_context.run();
+	}
 
-    /*
-    void post(std::string path){
-    	fetch(path, "POST ");
-    };*/
+	template<class CBtype>
+    void _post(std::string path, CBtype cb)
+	{
+		fetch(path, "POST ", cb);
+		io_context.run();
+	}
+
 
 
 private:
-    const std::string host = "paper-api.alpaca.markets";
+    const std::string host = "data.alpaca.markets";
     const std::string keyId = "PKHKND8U0PRCWVVRRRK0";
     const std::string secret = "zyGVtBINUWR/nQiC3wpVZqsbFZ80kwtXAGtqVe0o";
 
@@ -67,7 +84,30 @@ private:
     Response res;
     Event<Response*> event;
 
-    void fetch(const std::string path, const std::string method, void (*callback)(Response *));
+    AlpacaServiceHTTP();
+
+    template<class CBtype>
+    void fetch(const std::string path, const std::string method, CBtype cb)
+    {
+    	//make request
+    	event.addListener(cb);
+
+    	std::ostream request_stream(&request_buffer);
+    	request_stream << method << path << " HTTP/1.0\r\n";
+    	request_stream << "Host: " << host << "\r\n";
+    	request_stream << "Accept: */*\r\n";
+    	request_stream << "APCA-API-KEY-ID: " << keyId << "\r\n";
+    	request_stream << "APCA-API-SECRET-KEY: " << secret << "\r\n";
+    	request_stream << "Connection: close\r\n\r\n";
+
+    	// Find endpoint
+
+    	resolver.async_resolve(host, "https",
+    					boost::bind(&AlpacaServiceHTTP::on_resolve, this,
+    					boost::asio::placeholders::error,
+    					boost::asio::placeholders::results));
+    }
+
     void on_resolve(const boost::system::error_code& err, const tcp::resolver::results_type& endpoints);
     void on_connect(const boost::system::error_code& err);
     void on_handshake(const boost::system::error_code& error);
