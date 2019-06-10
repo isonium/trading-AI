@@ -7,9 +7,9 @@
 
 #include "Trader.h"
 
-Trader::Trader(long double bank, Simulation * simulation){
+Trader::Trader(long double bank, NeuralNetwork::Topology * brain_topology):
+brain(brain_topology){
 	this->bank = bank;
-	this->simulation = simulation;
 }
 
 
@@ -43,12 +43,8 @@ void Trader::sellStock(stock::Stock * const stockPtr, const long quantity){
 	bank += quantity * stockPtr->value;
 }
 
-
-void Trader::init_training(){
-	simulation->on_tick(boost::bind(&Trader::decide, this, boost::placeholders::_1));
-}
-
-void Trader::decide(stock::Candle * c){
-	std::cout << c->close << std::endl;
+void Trader::decide(){
+	std::cout << "decide" << std::endl;
+	std::cout << brain.get_layers().at(0)->at(0)->value << std::endl;
 }
 

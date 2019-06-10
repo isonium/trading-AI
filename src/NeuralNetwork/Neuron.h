@@ -1,4 +1,5 @@
 /*
+
  * Neuron.h
  *
  *  Created on: May 30, 2019
@@ -9,30 +10,35 @@
 #define NEURALNETWORK_NEURON_H_
 
 #include <vector>
+#include <iostream>
 
-#include "Connection.h"
+
+#include "Connection.cuh"
 
 namespace NeuralNetwork {
 
 struct Connection;
 
 
-class Neuron {
+struct Neuron {
 public:
 	Neuron();
 	virtual ~Neuron();
 
-	void add_connection(Neuron*);
-	void feed_forward(float input);
+	Connection * add_connection(Neuron * neuron, float weight);
+	Connection * add_connection(Neuron*);
 
-private:
-	std::vector<Connection> connections;
-	long double value;
+	void increment_value(float inc_value);
+	void set_value(float new_value);
+
+	const float get_value() const;
+
+	float value;
 };
 
 
 
-typedef std::vector<Neuron> Layer;
+typedef std::vector<Neuron *> Layer;
 
 } /* namespace NeuralNetwork */
 

@@ -10,13 +10,15 @@
 
 #include "../Stock/Stock.h"
 #include "../Simulation/Simulation.h"
+#include "../NeuralNetwork/NN.h"
+#include "../NeuralNetwork/Topology.h"
 
 #ifndef TRADER_H_
 #define TRADER_H_
 
 class Trader {
 public:
-	Trader(long double bank, Simulation * simulation);
+	Trader(long double bank, NeuralNetwork::Topology *brain_topology);
 
 	virtual ~Trader();
 
@@ -24,14 +26,15 @@ public:
 
 	void buyStock(stock::Stock * const stockPtr, const int quantity);
 	void sellStock(stock::Stock * const stockPtr, const long quantity);
-	void init_training();
+	void decide();
 
 private:
 	long double bank;
 	stock::Portfolio portfolio;
-	Simulation * simulation;
 
-	void decide(stock::Candle *);
+	NeuralNetwork::NN brain;
+
+	void init_traders();
 };
 
 #endif /* TRADER_H_ */

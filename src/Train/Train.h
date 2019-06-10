@@ -18,12 +18,14 @@
 #include "../AlpacaServiceHTTP/AlpacaServiceHTTP.h"
 #include "../Event/Event.hpp"
 #include "../Stock/Stock.h"
+#include "../NeuralNetwork/Topology.h"
+#include "../NeuralNetwork/NN.h"
 
 using json = nlohmann::json;
 
 class Train {
 public:
-	Train(int trader_count);
+	Train(int initial_topology_count, int inputs, int outputs);
 	virtual ~Train();
 
 	void load_data();
@@ -32,9 +34,11 @@ private:
 	Simulation simulation;
 	std::vector<Trader> traders;
 	std::vector<stock::Candle> data;
+	std::vector<NeuralNetwork::Topology> topologies;
 
 	void parse_data(Response * data);
 	void start();
+	void init_traders();
 };
 
 #endif /* TRAIN_TRAIN_H_ */
