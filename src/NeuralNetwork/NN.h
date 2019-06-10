@@ -32,6 +32,8 @@ public:
 	void connect_neurons(Neuron * input, Neuron * output, int input_layer);
 
 	std::vector<Layer*> get_layers() const;
+
+	Layer * output_layer() const;
 private:
 	std::vector<Layer*> layers;
 

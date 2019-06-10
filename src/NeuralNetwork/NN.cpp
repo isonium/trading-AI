@@ -12,20 +12,22 @@ namespace NeuralNetwork {
 std::vector<std::vector<Connection*>> NN::global_layers;
 std::vector<NN> NN::networks;
 
-NN::NN(Topology * topology) {
+NN::NN(Topology * topology): layers() {
 	networks.push_back(*this);
 	init_topology(topology);
 }
 
 NN::~NN() {
-	// TODO Auto-generated destructor stub
+	for(Layer * layer: layers){
+		delete layer;
+	}
 }
 
 void NN::init_topology(Topology * topology){
 	size_t layers_count = topology->layers;
 	for(int it = 0; it < layers_count; ++it){
-		Layer layer;
-		layers.push_back(&layer);
+		Layer * layer = new Layer();
+		layers.push_back(layer);
 	}
 	std::vector<Phenotype> relationships = topology->relationships;
 	for(Phenotype phenotype: relationships){
@@ -39,6 +41,7 @@ void NN::init_topology(Topology * topology){
 		Connection * connection = input_neuron_ptr->add_connection(output_neuron_ptr, weight);
 		add_to_global(input_layer, connection);
 	}
+	output_layer();
 }
 
 void NN::add_to_global(int layer, Connection * connection){
@@ -55,11 +58,12 @@ void NN::add_to_global(int layer, Connection * connection){
 Neuron * NN::get_neuron(int layer, int index) const {
 	try{
 		Neuron * neuron = layers[layer]->at(index);
+		if (!neuron) throw std::out_of_range("Not defined");
 		return neuron;
 	}
 	catch (const std::out_of_range& oor){
-		Neuron * neuron;
-		Layer * _layer = layers[layer];
+		Neuron * neuron = new Neuron();
+		Layer *_layer = layers[layer];
 		_layer->resize(index+1);
 		_layer->at(index) = neuron;
 		return neuron;
@@ -81,6 +85,10 @@ void NN::add_neuron(int layer, int index){
 void NN::connect_neurons(Neuron * input, Neuron * output, int input_layer){
 	Connection * connection = input->add_connection(output);
 	global_layers[input_layer-1].push_back(connection);
+}
+
+Layer * NN::output_layer() const {
+	return layers.back();
 }
 
 std::vector<Layer*> NN::get_layers() const {

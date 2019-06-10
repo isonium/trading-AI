@@ -32,7 +32,7 @@ public:
 
 private:
 	Simulation simulation;
-	std::vector<Trader> traders;
+	std::vector<Trader*> traders;
 	std::vector<stock::Candle> data;
 	std::vector<NeuralNetwork::Topology> topologies;
 

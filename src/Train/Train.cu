@@ -33,7 +33,8 @@ Train::~Train() { }
 
 void Train::init_traders(){
 	for(NeuralNetwork::Topology topology: topologies){
-		Trader trader(100000.0, &topology);
+		Trader * trader = new Trader(100000.0, &topology);
+		trader->decide();
 		traders.push_back(trader);
 	}
 }
@@ -70,17 +71,24 @@ void Train::parse_data(Response * res){
 	start();
 }
 
+/*
 __device__ float sigmoid_activation(const float value){
 	return 1/(1 + exp(-value));
+}*/
+
+__device__ float sigmoid_activation(const float value){
+	return 10+value;
 }
 
 __global__
 void feed_forward(int n, NeuralNetwork::Connection ** connections){
-	const unsigned int i = blockIdx.x*blockDim.x+threadIdx.x;
+	const int i = blockIdx.x*blockDim.x+threadIdx.x;
+	printf("It: %i", i);
 	if(i < n){
 		NeuralNetwork::Connection * connection = connections[i];
 		float input_value = connection->input->value;
 		input_value = sigmoid_activation(input_value);
+		printf("%f", input_value);
 		connection->output->value += input_value * connection->weight;
 	}
 }
@@ -95,12 +103,15 @@ void Train::start(){
 		NeuralNetwork::Connection ** connections_gpu;
 		cudaMalloc(&connections_gpu, N*sizeof(NeuralNetwork::Connection*));
 		cudaMemcpy(connections_cpu, connections_gpu, N*sizeof(NeuralNetwork::Connection*), cudaMemcpyHostToDevice);
-		feed_forward<<<255, 255>>>(N, connections_gpu);
-		cudaDeviceSynchronize();
+		feed_forward<<<25, 25>>>(N, connections_gpu);
+	    cudaError_t cudaerr = cudaDeviceSynchronize();
+	    if (cudaerr != cudaSuccess)
+	        printf("kernel launch failed with error \"%s\".\n",
+	               cudaGetErrorString(cudaerr));
 		cudaFree(connections_cpu);
 	}
-	for(Trader trader: traders){
-		trader.decide();
+	for(auto trader: traders){
+		trader->decide();
 	}
 }
 

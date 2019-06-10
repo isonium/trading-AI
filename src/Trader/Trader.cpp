@@ -8,7 +8,8 @@
 #include "Trader.h"
 
 Trader::Trader(long double bank, NeuralNetwork::Topology * brain_topology):
-brain(brain_topology){
+brain(brain_topology)
+{
 	this->bank = bank;
 }
 
@@ -44,7 +45,10 @@ void Trader::sellStock(stock::Stock * const stockPtr, const long quantity){
 }
 
 void Trader::decide(){
-	std::cout << "decide" << std::endl;
-	std::cout << brain.get_layers().at(0)->at(0)->value << std::endl;
+	NeuralNetwork::Layer * output = brain.output_layer();
+	/*
+	for(NeuralNetwork::Neuron * neuron: *output){
+		//std::cout << neuron->value << std::endl;
+	}*/
 }
 
