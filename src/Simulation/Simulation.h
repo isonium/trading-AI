@@ -11,6 +11,8 @@
 #include <string>
 #include <iostream>
 
+#include "boost/function.hpp"
+
 #include "../Event/Event.hpp"
 #include "../Stock/Stock.h"
 

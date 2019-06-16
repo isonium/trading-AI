@@ -13,7 +13,7 @@ Portfolio::Portfolio(){
 	this->positions = PositionMap();
 }
 
-std::vector<Position*> * Portfolio::findPosition(const std::string ticker) const{
+std::vector<Position*> * Portfolio::find_position(const std::string ticker) const{
 	PositionMap::const_iterator it = positions.find(ticker);
 	if(it == positions.end()){
 		// Not found
@@ -22,9 +22,9 @@ std::vector<Position*> * Portfolio::findPosition(const std::string ticker) const
 	return const_cast<std::vector<Position*>*>(&(it->second));
 }
 
-void Portfolio::addPosition(Position* position){
+void Portfolio::add_position(Position* position){
 	const std::string ticker = position->stock->ticker;
-	std::vector<Position*> * positionsVector = findPosition(ticker);
+	std::vector<Position*> * positionsVector = find_position(ticker);
 	if(!positionsVector){
 		positionsVector->push_back(position);
 	}
@@ -33,8 +33,18 @@ void Portfolio::addPosition(Position* position){
 	}
 }
 
-long Portfolio::getTickerQuantity(const std::string ticker) const {
-	std::vector<Position*> * positionsVector = findPosition(ticker);
+double Portfolio::total_value() const {
+	double total = 0;
+	for(auto position_map_iterator: positions){
+		for(Position * position: position_map_iterator.second){
+			total += position->stock->value * position->quantity;
+		}
+	}
+	return total;
+}
+
+long Portfolio::get_ticker_quantity(const std::string ticker) const {
+	std::vector<Position*> * positionsVector = find_position(ticker);
 	if(!positionsVector) return 0;
 	long total = 0;
 	std::vector<Position*>::iterator position;
@@ -45,9 +55,9 @@ long Portfolio::getTickerQuantity(const std::string ticker) const {
 }
 
 
-void Portfolio::removeStocks(const std::string ticker, long quantity){
-	std::vector<Position*> * positionsVector = findPosition(ticker);
-	long totalOwned = getTickerQuantity(ticker);
+void Portfolio::remove_stocks(const std::string ticker, long quantity){
+	std::vector<Position*> * positionsVector = find_position(ticker);
+	long totalOwned = get_ticker_quantity(ticker);
 	if(totalOwned > quantity) throw "This portfolio does not have enough stocks with this ticker";
 	Position* firstPositionPtr;
 	while(quantity > 0){

@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS :=
+LIBS := -lssl -lboost_system -lcrypto -lpthread
 

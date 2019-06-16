@@ -10,7 +10,8 @@
 
 #include <iostream>
 #include <vector>
-#include "Connection.cuh"
+
+#include "Connection.h"
 #include "Neuron.h"
 #include "Topology.h"
 
@@ -20,14 +21,11 @@ class Neuron;
 
 class NN {
 public:
-	static std::vector<std::vector<Connection*>> global_layers;
-	static std::vector<NN> networks;
-
 	NN(Topology * topology);
 	virtual ~NN();
 
 
-	void set_inputs(std::vector<float>);
+	const double compute(const double *);
 	void add_neuron(int layer, int index);
 	void connect_neurons(Neuron * input, Neuron * output, int input_layer);
 
@@ -39,8 +37,7 @@ private:
 
 	Neuron * get_neuron(int layer, int index) const;
 	void init_topology(Topology * topology);
-
-	static void add_to_global(int layer, Connection * connection);
+	void set_inputs(const double *);
 };
 
 } /* namespace NeuralNetwork */

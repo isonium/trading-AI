@@ -12,6 +12,7 @@
 #include <boost/function.hpp>
 #include <nlohmann/json.hpp>
 #include <unordered_map>
+#include <vector>
 
 #include "../Simulation/Simulation.h"
 #include "../Trader/Trader.h"

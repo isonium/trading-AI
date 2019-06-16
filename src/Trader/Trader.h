@@ -5,6 +5,9 @@
  *      Author: sakex
  */
 
+#ifndef TRADER_H_
+#define TRADER_H_
+
 
 #include <boost/bind.hpp>
 
@@ -13,8 +16,6 @@
 #include "../NeuralNetwork/NN.h"
 #include "../NeuralNetwork/Topology.h"
 
-#ifndef TRADER_H_
-#define TRADER_H_
 
 class Trader {
 public:
@@ -22,14 +23,18 @@ public:
 
 	virtual ~Trader();
 
-	long double getBank() const;
+	double get_bank() const;
 
-	void buyStock(stock::Stock * const stockPtr, const int quantity);
-	void sellStock(stock::Stock * const stockPtr, const long quantity);
-	void decide();
+	void update_assets();
+	void buy_stock(stock::Stock * const stockPtr, const int quantity);
+	void sell_stock(stock::Stock * const stockPtr, const long quantity);
+	void decide(stock::Candle &candle);
+	void rebalance(const double);
 
 private:
-	long double bank;
+	double bank;
+	double assets_value;
+	double invested_ratio = 0.0;
 	stock::Portfolio portfolio;
 
 	NeuralNetwork::NN brain;

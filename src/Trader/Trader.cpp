@@ -11,6 +11,7 @@ Trader::Trader(long double bank, NeuralNetwork::Topology * brain_topology):
 brain(brain_topology)
 {
 	this->bank = bank;
+	this->assets_value = bank;
 }
 
 
@@ -19,36 +20,51 @@ Trader::~Trader() {
 }
 
 
-long double Trader::getBank() const {
+double Trader::get_bank() const {
 	return bank;
 }
 
-void Trader::buyStock(stock::Stock * const stockPtr, const int quantity){
+void Trader::update_assets(){
+	double portfolio_value = portfolio.total_value();
+	assets_value = portfolio_value + bank;
+	invested_ratio = assets_value / portfolio_value;
+}
+
+void Trader::buy_stock(stock::Stock * const stockPtr, const int quantity){
 	const long double value = stockPtr->value * quantity;
-	if(this->bank >= value){
-		this->bank -= value;
+	if(bank >= value){
+		bank -= value;
 		stock::Position position {
 			stockPtr,
 			quantity,
 			stockPtr->value
 		};
-		this->portfolio.addPosition(&position);
+		portfolio.add_position(&position);
 	}
 	else{
 		throw "This trader does not have enough funds to buy this stock";
 	}
 }
 
-void Trader::sellStock(stock::Stock * const stockPtr, const long quantity){
-	portfolio.removeStocks(stockPtr->ticker, quantity);
+void Trader::sell_stock(stock::Stock * const stockPtr, const long quantity){
+	portfolio.remove_stocks(stockPtr->ticker, quantity);
 	bank += quantity * stockPtr->value;
 }
 
-void Trader::decide(){
-	NeuralNetwork::Layer * output = brain.output_layer();
-	/*
-	for(NeuralNetwork::Neuron * neuron: *output){
-		//std::cout << neuron->value << std::endl;
-	}*/
+void Trader::decide(stock::Candle &candle){
+	update_assets();
+	const double inputs[] = {
+			candle.open,
+			candle.close,
+			candle.volume,
+			candle.timestamp,
+			invested_ratio
+	};
+	const double output = brain.compute(inputs);
+	rebalance(output);
+}
+
+void Trader::rebalance(const double new_ratio){
+
 }
 

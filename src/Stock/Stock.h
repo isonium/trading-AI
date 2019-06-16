@@ -23,12 +23,12 @@ namespace stock{
 	} Stock;
 
 	typedef struct {
-		const float open;
-		const float close;
-		const float high;
-		const float low;
-		const unsigned long volume;
-		const unsigned long timestamp;
+		const double open;
+		const double close;
+		const double high;
+		const double low;
+		const double volume;
+		const double timestamp;
 	} Candle;
 
 	typedef struct {
@@ -42,10 +42,11 @@ namespace stock{
 	class Portfolio{
 	public:
 		Portfolio();
-		std::vector<Position*> * findPosition(const std::string ticker) const;
-		long getTickerQuantity(const std::string ticker) const;
-		void addPosition(Position* position);
-		void removeStocks(const std::string ticker, long quantity);
+		std::vector<Position*> * find_position(const std::string ticker) const;
+		double total_value() const;
+		long get_ticker_quantity(const std::string ticker) const;
+		void add_position(Position* position);
+		void remove_stocks(const std::string ticker, long quantity);
 
 	private:
 		PositionMap positions;

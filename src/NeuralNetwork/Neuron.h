@@ -13,14 +13,14 @@
 #include <iostream>
 
 
-#include "Connection.cuh"
+#include "Connection.h"
 
 namespace NeuralNetwork {
 
-struct Connection;
+class Connection;
 
 
-struct Neuron {
+class Neuron {
 public:
 	Neuron();
 	virtual ~Neuron();
@@ -28,12 +28,15 @@ public:
 	Connection * add_connection(Neuron * neuron, float weight);
 	Connection * add_connection(Neuron*);
 
-	void increment_value(float inc_value);
-	void set_value(float new_value);
+	void increment_value(const double inc_value);
+	void set_value(const double new_value);
 
-	const float get_value() const;
+	double get_value() const;
+	void feed_forward();
 
-	float value;
+private:
+	double value;
+	std::vector<Connection*> connections;
 };
 
 
