@@ -9,9 +9,9 @@
 
 #define online true
 
-Train::Train(int initial_topology_count, int inputs, int outputs) {
+Train::Train(int initial_topology_count, int inputs, int outputs): topologies() {
 	NeuralNetwork::Topology initial_topology;
-	initial_topology.layers = 2;
+	initial_topology.set_layers(2);
 	int i, j;
 	for(i = 0; i < inputs; ++i){
 		NeuralNetwork::Phenotype phenotype;
@@ -21,7 +21,7 @@ Train::Train(int initial_topology_count, int inputs, int outputs) {
 		for(j = 0; j < outputs; ++j){
 			phenotype.output[0] = 1;
 			phenotype.output[1] = j;
-			initial_topology.relationships.push_back(phenotype);
+			initial_topology.add_relationship(phenotype);
 		}
 	}
 	for(i = 0; i < initial_topology_count; ++i){
@@ -41,6 +41,7 @@ void Train::init_traders(){
 #if online
 
 void Train::load_data(){
+	std::cout << 1111111 << std::endl;
 	boost::function<void (Response*)> cb =
 			boost::bind(&Train::parse_data, this, boost::placeholders::_1);
 	AlpacaServiceHTTP::get("/v1/bars/15Min?symbols=AAPL&limit=1000", cb);
@@ -60,10 +61,9 @@ void Train::load_data(){
 
 
 void Train::parse_data(Response * res){
-	std::cout << "test";
 	json j = json::parse(res->body);
 	double open, close, high, low, volume, timestamp;
-	for(auto it: j["AAPL"]){
+	for(auto it: j["AAPL"]) {
 		open = it["o"];
 		close = it["c"];
 		high = it["h"];
@@ -86,9 +86,13 @@ void Train::parse_data(Response * res){
 
 void Train::start(){
 	init_traders();
+	stock::Stock default_stock = {
+			"Apple", "AAPL", 0
+	};
 	for(stock::Candle candle: data){
+		default_stock.value = (candle.open + candle.close) / 2;
 		for(Trader * trader: traders){
-			trader->decide(candle);
+			trader->decide(candle, default_stock);
 		}
 	}
 }

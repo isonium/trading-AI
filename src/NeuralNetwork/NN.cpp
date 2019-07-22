@@ -9,7 +9,7 @@
 
 namespace NeuralNetwork {
 
-NN::NN(Topology * topology): layers() {
+NN::NN(Topology * topology) {
 	init_topology(topology);
 }
 
@@ -21,13 +21,13 @@ NN::~NN() {
 }
 
 void NN::init_topology(Topology * topology){
-	size_t layers_count = topology->layers;
+	size_t layers_count = topology->get_layers();
 	for(size_t it = 0; it < layers_count; ++it){
 		Layer * layer = new Layer();
 		layers.push_back(layer);
 	}
-	std::vector<Phenotype> relationships = topology->relationships;
-	for(Phenotype phenotype: relationships){
+	std::vector<Phenotype> * relationships = topology->get_relationships();
+	for(Phenotype phenotype: *relationships){
 		int input_layer = phenotype.input[0];
 		int input_index = phenotype.input[1];
 		int output_layer = phenotype.output[0];
@@ -39,7 +39,6 @@ void NN::init_topology(Topology * topology){
 	}
 	output_layer();
 }
-
 
 Neuron * NN::get_neuron(int layer, int index) const {
 	try{
@@ -72,6 +71,7 @@ Layer * NN::output_layer() const {
 std::vector<Layer*> NN::get_layers() const {
 	return layers;
 }
+
 const double NN::compute(const double * inputs_vector){
 	set_inputs(inputs_vector);
 	size_t length = layers.size();

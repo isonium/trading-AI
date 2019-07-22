@@ -27,19 +27,19 @@ double Trader::get_bank() const {
 void Trader::update_assets(){
 	double portfolio_value = portfolio.total_value();
 	assets_value = portfolio_value + bank;
-	invested_ratio = assets_value / portfolio_value;
+	invested_ratio = portfolio_value / assets_value;
 }
 
-void Trader::buy_stock(stock::Stock * const stockPtr, const int quantity){
-	const long double value = stockPtr->value * quantity;
+void Trader::buy_stock(stock::Stock &_stock, const int quantity){
+	const long double value = _stock.value * quantity;
 	if(bank >= value){
 		bank -= value;
-		stock::Position position {
-			stockPtr,
+		stock::Position * position = new stock::Position {
+			&_stock,
 			quantity,
-			stockPtr->value
+			_stock.value
 		};
-		portfolio.add_position(&position);
+		portfolio.add_position(position);
 	}
 	else{
 		throw "This trader does not have enough funds to buy this stock";
@@ -51,7 +51,7 @@ void Trader::sell_stock(stock::Stock * const stockPtr, const long quantity){
 	bank += quantity * stockPtr->value;
 }
 
-void Trader::decide(stock::Candle &candle){
+void Trader::decide(stock::Candle &candle, stock::Stock &default_stock){
 	update_assets();
 	const double inputs[] = {
 			candle.open,
@@ -61,10 +61,18 @@ void Trader::decide(stock::Candle &candle){
 			invested_ratio
 	};
 	const double output = brain.compute(inputs);
-	rebalance(output);
+	rebalance(output, default_stock);
 }
 
-void Trader::rebalance(const double new_ratio){
-
+void Trader::rebalance(const double new_ratio, stock::Stock &default_stock){
+	const double delta = new_ratio - invested_ratio;
+	const long new_investments = round(delta * (bank + assets_value));
+	if(new_investments > 0){
+		buy_stock(default_stock, new_investments);
+	}
+	else if(new_investments < 0){
+		sell_stock(&default_stock, -1 * new_investments);
+	}
+	// If 0 don't do anything
 }
 

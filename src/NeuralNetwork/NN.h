@@ -33,7 +33,7 @@ public:
 
 	Layer * output_layer() const;
 private:
-	std::vector<Layer*> layers;
+	std::vector<Layer*> layers = {};
 
 	Neuron * get_neuron(int layer, int index) const;
 	void init_topology(Topology * topology);

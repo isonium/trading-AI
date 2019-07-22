@@ -76,10 +76,10 @@ private:
     boost::asio::ssl::context context;
 	boost::asio::io_context io_context;
 	tcp::resolver resolver;
+    std::istream response_stream;
     boost::asio::ssl::stream<tcp::socket> socket;
     boost::asio::streambuf request_buffer;
     boost::asio::streambuf response;
-    std::istream response_stream;
 
     Response res;
     Event<Response*> event;

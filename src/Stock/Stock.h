@@ -8,6 +8,8 @@
 #ifndef STOCK_H_
 #define STOCK_H_
 
+#include <iostream>
+
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -37,15 +39,16 @@ namespace stock{
 		const long double initialPrice;
 	} Position;
 
-	typedef std::unordered_map<std::string, std::vector<Position*>> PositionMap;
+	typedef std::unordered_map<std::string, std::vector<Position*>*> PositionMap;
 
 	class Portfolio{
 	public:
 		Portfolio();
-		std::vector<Position*> * find_position(const std::string ticker) const;
+		~Portfolio();
+		const std::vector<Position*> * find_position(const std::string ticker) const;
 		double total_value() const;
 		long get_ticker_quantity(const std::string ticker) const;
-		void add_position(Position* position);
+		void add_position(Position * position);
 		void remove_stocks(const std::string ticker, long quantity);
 
 	private:

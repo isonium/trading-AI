@@ -26,10 +26,10 @@ public:
 	double get_bank() const;
 
 	void update_assets();
-	void buy_stock(stock::Stock * const stockPtr, const int quantity);
+	void buy_stock(stock::Stock &_stock, const int quantity);
 	void sell_stock(stock::Stock * const stockPtr, const long quantity);
-	void decide(stock::Candle &candle);
-	void rebalance(const double);
+	void decide(stock::Candle &candle, stock::Stock &default_stock);
+	void rebalance(const double, stock::Stock &default_stock);
 
 private:
 	double bank;

@@ -19,10 +19,18 @@ typedef struct {
 	float weight;
 } Phenotype;
 
-typedef	struct {
+class Topology {
+public:
+	size_t get_layers() const;
+	std::vector<Phenotype> * get_relationships();
+
+	void set_layers(size_t _layers);
+	void add_relationship(Phenotype & phenotype);
+
+private:
 	size_t layers;
 	std::vector<Phenotype> relationships;
-} Topology;
+};
 
 } /* namespace NeuralNetwork */
 

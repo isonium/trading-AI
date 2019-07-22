@@ -34,7 +34,7 @@ public:
 	}
 
 	void emit() const{
-		T temp;
+		T temp = NULL;
 		unsigned it;
 		for(it = 0; it < listeners.size(); ++it){
 			listeners[it](temp);

@@ -67,7 +67,6 @@ void AlpacaServiceHTTP::read_lines(const boost::system::error_code& err, boost::
 	std::istream response_stream(response);
 	std::string http_version;
 	response_stream >> http_version;
-	unsigned int status_code;
 	response_stream >> res.status_code;
 	std::string status_message;
 	std::getline(response_stream, status_message);

@@ -6,17 +6,20 @@
 CPP_SRCS += \
 ../src/NeuralNetwork/Connection.cpp \
 ../src/NeuralNetwork/NN.cpp \
-../src/NeuralNetwork/Neuron.cpp 
+../src/NeuralNetwork/Neuron.cpp \
+../src/NeuralNetwork/Topology.cpp 
 
 OBJS += \
 ./src/NeuralNetwork/Connection.o \
 ./src/NeuralNetwork/NN.o \
-./src/NeuralNetwork/Neuron.o 
+./src/NeuralNetwork/Neuron.o \
+./src/NeuralNetwork/Topology.o 
 
 CPP_DEPS += \
 ./src/NeuralNetwork/Connection.d \
 ./src/NeuralNetwork/NN.d \
-./src/NeuralNetwork/Neuron.d 
+./src/NeuralNetwork/Neuron.d \
+./src/NeuralNetwork/Topology.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
