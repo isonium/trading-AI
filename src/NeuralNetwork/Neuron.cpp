@@ -10,30 +10,30 @@
 namespace NeuralNetwork {
 
 Neuron::Neuron() {
-	value = 0;
+	value = 0.0;
 }
 
 Neuron::~Neuron() {
-	for(Connection * connection: connections){
+	for (Connection * connection : connections) {
 		delete connection;
 	}
 }
 
-Connection * Neuron::add_connection(Neuron * neuron, float weight){
+Connection * Neuron::add_connection(Neuron * neuron, float weight) {
 	Connection * connection = new Connection(weight, this, neuron);
 	connections.push_back(connection);
 	return connection;
 }
 
-Connection * Neuron::add_connection(Neuron * neuron){
+Connection * Neuron::add_connection(Neuron * neuron) {
 	return add_connection(neuron, .1);
 }
 
-void Neuron::increment_value(const double inc_value){
+void Neuron::increment_value(const double inc_value) {
 	value += inc_value;
 }
 
-void Neuron::set_value(const double new_value){
+void Neuron::set_value(double new_value) {
 	value = new_value;
 }
 
@@ -41,8 +41,8 @@ double Neuron::get_value() const {
 	return value;
 }
 
-void Neuron::feed_forward(){
-	for(Connection * connection: connections){
+void Neuron::feed_forward() {
+	for (Connection * connection : connections) {
 		connection->activate();
 	}
 	set_value(0);

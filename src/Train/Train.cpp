@@ -9,30 +9,29 @@
 
 #define online true
 
-Train::Train(int initial_topology_count, int inputs, int outputs): topologies() {
+Train::Train(int initial_topology_count, int inputs, int outputs) :
+		topologies() {
 	NeuralNetwork::Topology initial_topology;
 	initial_topology.set_layers(2);
 	int i, j;
-	for(i = 0; i < inputs; ++i){
-		NeuralNetwork::Phenotype phenotype;
-		phenotype.input[0] = 0;
-		phenotype.input[1] = i;
-		phenotype.weight = .1;
-		for(j = 0; j < outputs; ++j){
-			phenotype.output[0] = 1;
-			phenotype.output[1] = j;
+	for (i = 0; i < inputs; ++i) {
+		int input[2] = { 0, i };
+		NeuralNetwork::Phenotype phenotype(input, .1);
+		for (j = 0; j < outputs; ++j) {
+			phenotype.set_output(1, j);
 			initial_topology.add_relationship(phenotype);
 		}
 	}
-	for(i = 0; i < initial_topology_count; ++i){
+	for (i = 0; i < initial_topology_count; ++i) {
 		topologies.push_back(initial_topology);
 	}
 }
 
-Train::~Train() { }
+Train::~Train() {
+}
 
-void Train::init_traders(){
-	for(NeuralNetwork::Topology topology: topologies){
+void Train::init_traders() {
+	for (NeuralNetwork::Topology topology : topologies) {
 		Trader * trader = new Trader(100000.0, &topology);
 		traders.push_back(trader);
 	}
@@ -40,10 +39,9 @@ void Train::init_traders(){
 
 #if online
 
-void Train::load_data(){
-	std::cout << 1111111 << std::endl;
-	boost::function<void (Response*)> cb =
-			boost::bind(&Train::parse_data, this, boost::placeholders::_1);
+void Train::load_data() {
+	boost::function<void(Response*)> cb = boost::bind(&Train::parse_data, this,
+			boost::placeholders::_1);
 	AlpacaServiceHTTP::get("/v1/bars/15Min?symbols=AAPL&limit=1000", cb);
 }
 
@@ -59,91 +57,78 @@ void Train::load_data(){
 
 #endif
 
-
-void Train::parse_data(Response * res){
+void Train::parse_data(Response * res) {
 	json j = json::parse(res->body);
 	double open, close, high, low, volume, timestamp;
-	for(auto it: j["AAPL"]) {
+	for (auto it : j["AAPL"]) {
 		open = it["o"];
 		close = it["c"];
 		high = it["h"];
 		low = it["l"];
 		volume = it["v"];
 		timestamp = it["t"];
-		stock::Candle c {
-			open / 1e3,
-			close / 1e3,
-			high / 1e3,
-			low / 1e3,
-			volume / 1e6,
-			timestamp / 1e10
-		};
+		stock::Candle c { open / 1e3, close / 1e3, high / 1e3, low / 1e3, volume
+				/ 1e6, timestamp / 1e10 };
 		data.push_back(c);
 	}
 	start();
 }
 
-
-void Train::start(){
+void Train::start() {
 	init_traders();
-	stock::Stock default_stock = {
-			"Apple", "AAPL", 0
-	};
-	for(stock::Candle candle: data){
+	stock::Stock default_stock = { "Apple", "AAPL", 0 };
+	for (stock::Candle candle : data) {
 		default_stock.value = (candle.open + candle.close) / 2;
-		for(Trader * trader: traders){
+		for (Trader * trader : traders) {
 			trader->decide(candle, default_stock);
 		}
 	}
 }
 
-
 /*
-__device__ float sigmoid_activation(const float value){
-	return 1/(1 + exp(-value));
-}
+ __device__ float sigmoid_activation(const float value){
+ return 1/(1 + exp(-value));
+ }
 
-__device__ float sigmoid_activation(const float value){
-	return 10+value;
-}
+ __device__ float sigmoid_activation(const float value){
+ return 10+value;
+ }
 
-__global__
-void feed_forward(int n, NeuralNetwork::Connection ** connections){
-	const int i = blockIdx.x*blockDim.x+threadIdx.x;
-	printf("It: %i", i);
-	if(i < n){
-		NeuralNetwork::Connection * connection = connections[i];
-		float input_value = connection->input->value;
-		input_value = sigmoid_activation(input_value);
-		printf("%f", input_value);
-		connection->output->value += input_value * connection->weight;
-	}
-}
-
-
-void Train::start(){
-	init_traders();
-	size_t length = NeuralNetwork::NN::global_layers.size();
-	std::cout << 100 << std::endl;
-	for(size_t it = 0; it < length; ++it){
-		std::vector<NeuralNetwork::Connection*> connections_vec = NeuralNetwork::NN::global_layers[it];
-		size_t N = connections_vec.size();
-		NeuralNetwork::Connection ** connections_cpu = connections_vec.data();
-		NeuralNetwork::Connection ** connections_gpu;
-		cudaMalloc(&connections_gpu, N*sizeof(NeuralNetwork::Connection*));
-		cudaMemcpy(connections_cpu, connections_gpu, N*sizeof(NeuralNetwork::Connection*), cudaMemcpyHostToDevice);
-		feed_forward<<<25, 25>>>(N, connections_gpu);
-	    cudaError_t cudaerr = cudaDeviceSynchronize();
-	    if (cudaerr != cudaSuccess)
-	        printf("kernel launch failed with error \"%s\".\n",
-	               cudaGetErrorString(cudaerr));
-		cudaFree(connections_cpu);
-	}
-	for(auto trader: traders){
-		trader->decide();
-	}
-}
-*/
+ __global__
+ void feed_forward(int n, NeuralNetwork::Connection ** connections){
+ const int i = blockIdx.x*blockDim.x+threadIdx.x;
+ printf("It: %i", i);
+ if(i < n){
+ NeuralNetwork::Connection * connection = connections[i];
+ float input_value = connection->input->value;
+ input_value = sigmoid_activation(input_value);
+ printf("%f", input_value);
+ connection->output->value += input_value * connection->weight;
+ }
+ }
 
 
+ void Train::start(){
+ init_traders();
+ size_t length = NeuralNetwork::NN::global_layers.size();
+ std::cout << 100 << std::endl;
+ for(size_t it = 0; it < length; ++it){
+ std::vector<NeuralNetwork::Connection*> connections_vec = NeuralNetwork::NN::global_layers[it];
+ size_t N = connections_vec.size();
+ NeuralNetwork::Connection ** connections_cpu = connections_vec.data();
+ NeuralNetwork::Connection ** connections_gpu;
+ cudaMalloc(&connections_gpu, N*sizeof(NeuralNetwork::Connection*));
+ cudaMemcpy(connections_cpu, connections_gpu, N*sizeof(NeuralNetwork::Connection*), cudaMemcpyHostToDevice);
+ feed_forward<<<25, 25>>>(N, connections_gpu);
+ cudaError_t cudaerr = cudaDeviceSynchronize();
+ if (cudaerr != cudaSuccess)
+ printf("kernel launch failed with error \"%s\".\n",
+ cudaGetErrorString(cudaerr));
+ cudaFree(connections_cpu);
+ }
+ for(auto trader: traders){
+ trader->decide();
+ }
+ }
+ */
 

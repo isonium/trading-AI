@@ -8,14 +8,12 @@
 #ifndef TRADER_H_
 #define TRADER_H_
 
-
 #include <boost/bind.hpp>
 
 #include "../Stock/Stock.h"
 #include "../Simulation/Simulation.h"
 #include "../NeuralNetwork/NN.h"
 #include "../NeuralNetwork/Topology.h"
-
 
 class Trader {
 public:
@@ -24,6 +22,7 @@ public:
 	virtual ~Trader();
 
 	double get_bank() const;
+	double get_wealth() const;
 
 	void update_assets();
 	void buy_stock(stock::Stock &_stock, const int quantity);
@@ -37,7 +36,7 @@ private:
 	double invested_ratio = 0.0;
 	stock::Portfolio portfolio;
 
-	NeuralNetwork::NN brain;
+	NeuralNetwork::NN * brain;
 
 	void init_traders();
 };

@@ -24,20 +24,20 @@ public:
 	NN(Topology * topology);
 	virtual ~NN();
 
-
 	const double compute(const double *);
-	void add_neuron(int layer, int index);
-	void connect_neurons(Neuron * input, Neuron * output, int input_layer);
 
 	std::vector<Layer*> get_layers() const;
 
 	Layer * output_layer() const;
 private:
-	std::vector<Layer*> layers = {};
+	std::vector<Layer*> layers;
 
-	Neuron * get_neuron(int layer, int index) const;
+	Neuron * merge_neuron(int layer, int index);
+
+	void add_neuron(int layer, int index);
+	void connect_neurons(Neuron * input, Neuron * output, int input_layer);
 	void init_topology(Topology * topology);
-	void set_inputs(const double *);
+	void set_inputs(const double * inputs_vector);
 };
 
 } /* namespace NeuralNetwork */
