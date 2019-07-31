@@ -16,7 +16,7 @@
 
 #include <boost/function.hpp>
 
-namespace stock{
+namespace stock {
 
 	typedef struct {
 		std::string name;
@@ -40,20 +40,6 @@ namespace stock{
 	} Position;
 
 	typedef std::unordered_map<std::string, std::vector<Position*>*> PositionMap;
-
-	class Portfolio{
-	public:
-		Portfolio();
-		~Portfolio();
-		const std::vector<Position*> * find_position(const std::string ticker) const;
-		double total_value() const;
-		long get_ticker_quantity(const std::string ticker) const;
-		void add_position(Position * position);
-		void remove_stocks(const std::string ticker, long quantity);
-
-	private:
-		PositionMap positions;
-	};
 }
 
 #endif /* STOCK_H_ */

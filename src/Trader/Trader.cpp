@@ -7,18 +7,20 @@
 
 #include "Trader.h"
 
-Trader::Trader(long double bank, NeuralNetwork::Topology * brain_topology) {
-	this->brain = new NeuralNetwork::NN(brain_topology);
+Trader::Trader(long double bank, NeuralNetwork::Topology * brain_topology): brain(brain_topology) {
 	this->bank = bank;
 	this->assets_value = bank;
 }
 
 Trader::~Trader() {
-	delete brain;
 }
 
 double Trader::get_bank() const {
 	return bank;
+}
+
+double Trader::get_wealth() const {
+	return bank + portfolio.total_value();
 }
 
 void Trader::update_assets() {
@@ -48,7 +50,7 @@ void Trader::decide(stock::Candle &candle, stock::Stock &default_stock) {
 	update_assets();
 	const double inputs[5] = { candle.open, candle.close, candle.volume,
 			candle.timestamp, invested_ratio };
-	const double output = brain->compute(inputs);
+	const double output = brain.compute(inputs);
 	rebalance(output, default_stock);
 }
 

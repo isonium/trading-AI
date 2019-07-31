@@ -30,13 +30,6 @@ Train::Train(int initial_topology_count, int inputs, int outputs) :
 Train::~Train() {
 }
 
-void Train::init_traders() {
-	for (NeuralNetwork::Topology topology : topologies) {
-		Trader * trader = new Trader(100000.0, &topology);
-		traders.push_back(trader);
-	}
-}
-
 #if online
 
 void Train::load_data() {
@@ -75,17 +68,23 @@ void Train::parse_data(Response * res) {
 }
 
 void Train::start() {
-	init_traders();
+	size_t topologies_length = topologies.size();
+	std::vector<Trader *> traders(topologies_length);
+	for (size_t it = 0; it < topologies_length; ++it) {
+		NeuralNetwork::Topology topology = topologies[it];
+		Trader * trader = new Trader(100000.0, &topology);
+		traders[it] = trader;
+	}
 	stock::Stock default_stock = { "Apple", "AAPL", 0 };
 	for (stock::Candle candle : data) {
 		default_stock.value = (candle.open + candle.close) / 2;
-		for (Trader * trader : traders) {
-			trader->decide(candle, default_stock);
+		for (size_t it = 0; it < topologies_length; ++it) {
+			traders[it]->decide(candle, default_stock);
 		}
 	}
 }
 
-/*
+#if GPU
  __device__ float sigmoid_activation(const float value){
  return 1/(1 + exp(-value));
  }
@@ -130,5 +129,4 @@ void Train::start() {
  trader->decide();
  }
  }
- */
-
+#endif

@@ -11,6 +11,7 @@
 #include <boost/bind.hpp>
 
 #include "../Stock/Stock.h"
+#include "../Stock/Portfolio.h"
 #include "../Simulation/Simulation.h"
 #include "../NeuralNetwork/NN.h"
 #include "../NeuralNetwork/Topology.h"
@@ -36,7 +37,7 @@ private:
 	double invested_ratio = 0.0;
 	stock::Portfolio portfolio;
 
-	NeuralNetwork::NN * brain;
+	NeuralNetwork::NN brain;
 
 	void init_traders();
 };
