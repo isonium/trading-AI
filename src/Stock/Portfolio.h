@@ -9,6 +9,7 @@
 #define STOCK_PORTFOLIO_H_
 
 #include <vector>
+#include <numeric>
 #include "Stock.h"
 
 namespace stock {
@@ -17,11 +18,11 @@ class Portfolio {
 public:
 	Portfolio();
 	~Portfolio();
-	const std::vector<Position*> * find_position(const std::string ticker) const;
+	const std::vector<Position*> * find_position(const std::string & ticker) const;
 	double total_value() const;
-	long get_ticker_quantity(const std::string ticker) const;
-	void add_position(stock::Position * position);
-	void remove_stocks(const std::string ticker, long quantity);
+	long get_ticker_quantity(const std::string & ticker) const;
+	void add_position(stock::Stock & _stock, const int quantity);
+	void remove_stocks(const std::string & ticker, long quantity);
 
 private:
 	PositionMap positions;

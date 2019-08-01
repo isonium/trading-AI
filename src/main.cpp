@@ -14,7 +14,7 @@
 #include "Train/Train.h"
 
 int main() {
-	Train train(100, 7, 1);
+	Train::Train train(100, 7, 1);
 	train.load_data();
 	return 0;
 }

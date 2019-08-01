@@ -21,7 +21,7 @@ class Neuron;
 
 class NN {
 public:
-	NN(Topology * topology);
+	explicit NN(Topology * topology);
 	virtual ~NN();
 
 	const double compute(const double *);

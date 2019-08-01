@@ -9,8 +9,10 @@
 
 namespace stock {
 
-Portfolio::Portfolio() {
-	this->positions = PositionMap();
+constexpr long LONG_ZERO = 0;
+
+Portfolio::Portfolio() :
+		positions() {
 }
 
 Portfolio::~Portfolio() {
@@ -23,7 +25,7 @@ Portfolio::~Portfolio() {
 }
 
 const std::vector<Position*> * Portfolio::find_position(
-		const std::string ticker) const {
+		const std::string & ticker) const {
 	PositionMap::const_iterator it = positions.find(ticker);
 	if (it == positions.end()) {
 		// Not found
@@ -32,7 +34,9 @@ const std::vector<Position*> * Portfolio::find_position(
 	return it->second;
 }
 
-void Portfolio::add_position(stock::Position * position) {
+void Portfolio::add_position(stock::Stock & _stock, const int quantity) {
+	stock::Position * position = new stock::Position { &_stock, quantity,
+			_stock.value };
 	const std::string ticker = position->stock->ticker;
 	std::vector<Position*> * positions_vector =
 			const_cast<std::vector<Position*> *>(find_position(ticker));
@@ -48,34 +52,33 @@ void Portfolio::add_position(stock::Position * position) {
 double Portfolio::total_value() const {
 	double total = 0;
 	for (auto position_map_iterator : positions) {
-		for (Position * position : *position_map_iterator.second) {
-			total += position->stock->value * position->quantity;
-		}
+		total += std::accumulate(position_map_iterator.second->begin(),
+				position_map_iterator.second->end(), 0.0,
+				[](double total, Position * position) {return total + position->stock->value * position->quantity;});
 	}
 	return total;
 }
 
-long Portfolio::get_ticker_quantity(const std::string ticker) const {
+long Portfolio::get_ticker_quantity(const std::string & ticker) const {
 	std::vector<Position*> * positions_vector =
 			const_cast<std::vector<Position*> *>(find_position(ticker));
 	if (!positions_vector)
 		return 0;
-	long total = 0;
-	for (Position * position : *positions_vector) {
-		total += position->quantity;
-	}
+	long total =
+			std::accumulate(positions_vector->begin(), positions_vector->end(),
+					LONG_ZERO,
+					[](long total, Position * position) {return total + position->quantity;});
 	return total;
 }
 
-void Portfolio::remove_stocks(const std::string ticker, long quantity) {
+void Portfolio::remove_stocks(const std::string & ticker, long quantity) {
 	std::vector<Position*> * positions_vector =
 			const_cast<std::vector<Position*> *>(find_position(ticker));
 	long total_owned = get_ticker_quantity(ticker);
 	if (total_owned < quantity)
 		throw "This portfolio does not have enough stocks with this ticker";
-	Position* first_position_ptr;
 	while (quantity > 0) {
-		first_position_ptr = positions_vector->at(0);
+		Position* first_position_ptr = positions_vector->at(0);
 		if (first_position_ptr->quantity > quantity) {
 			first_position_ptr->quantity -= quantity;
 			break;

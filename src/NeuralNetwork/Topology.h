@@ -27,10 +27,10 @@ public:
 	void set_layers(size_t _layers);
 	void add_relationship(Phenotype);
 
-	void mutate();
+	void mutate() override;
 
 private:
-	size_t layers;
+	size_t layers = 0;
 	std::vector<Phenotype> relationships = {};
 	std::vector<Mutation> mutations = {};
 

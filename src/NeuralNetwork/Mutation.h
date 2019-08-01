@@ -15,11 +15,11 @@ namespace NeuralNetwork {
 
 class Mutation: public Mutable {
 public:
-	Mutation(Phenotype * phenotype);
+	explicit Mutation(Phenotype * phenotype);
 	~Mutation() { };
 
 	unsigned get_iterations() const;
-	void mutate();
+	void mutate() override;
 
 private:
 	Phenotype * phenotype;

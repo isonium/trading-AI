@@ -25,21 +25,20 @@ public:
 	double get_bank() const;
 	double get_wealth() const;
 
-	void update_assets();
-	void buy_stock(stock::Stock &_stock, const int quantity);
-	void sell_stock(stock::Stock * const stockPtr, const long quantity);
 	void decide(stock::Candle &candle, stock::Stock &default_stock);
-	void rebalance(const double, stock::Stock &default_stock);
+	void reset(long double bank, NeuralNetwork::Topology * brain_topology);
 
 private:
 	double bank;
 	double assets_value;
 	double invested_ratio = 0.0;
-	stock::Portfolio portfolio;
+	stock::Portfolio * portfolio;
+	NeuralNetwork::NN * brain;
 
-	NeuralNetwork::NN brain;
-
-	void init_traders();
+	void rebalance(const double, stock::Stock &default_stock);
+	void buy_stock(stock::Stock &_stock, const int quantity);
+	void sell_stock(stock::Stock * const stockPtr, const long quantity);
+	void update_assets();
 };
 
 #endif /* TRADER_H_ */

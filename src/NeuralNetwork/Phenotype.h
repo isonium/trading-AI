@@ -13,8 +13,8 @@ namespace NeuralNetwork {
 
 class Phenotype {
 public:
-	Phenotype(int input[2], float weight);
-	Phenotype(int input[2]): Phenotype(input, .1) {}
+	explicit Phenotype(int input[2], float weight);
+	explicit Phenotype(int input[2]): Phenotype(input, .1) {}
 
 	void update_weight(float gradient);
 	void set_output(int first, int second);
@@ -23,8 +23,8 @@ public:
 	float get_weight() const;
 
 private:
-	int input[2];
-	int output[2];
+	int input[2] = {};
+	int output[2] = {};
 	float weight;
 };
 
