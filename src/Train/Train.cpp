@@ -10,22 +10,22 @@
 #define online true
 
 namespace Train {
-Train::Train(int initial_topology_count, int inputs, int outputs) :
+Train::Train(int const & initial_topology_count, int const & inputs,
+		int const & outputs) :
 		topologies() {
-	NeuralNetwork::Topology initial_topology;
-	initial_topology.set_layers(2);
+	default_stock = new stock::Stock { "Apple", "AAPL", 0 };
+	Topology_ptr initial_topology = std::make_shared<Topology>();
+	initial_topology->set_layers(2);
 	int i, j;
 	for (i = 0; i < inputs; ++i) {
 		int input[2] = { 0, i };
 		NeuralNetwork::Phenotype phenotype(input, .1);
 		for (j = 0; j < outputs; ++j) {
 			phenotype.set_output(1, j);
-			initial_topology.add_relationship(phenotype);
+			initial_topology->add_relationship(phenotype, true);
 		}
 	}
-	for (i = 0; i < initial_topology_count; ++i) {
-		topologies.push_back(initial_topology);
-	}
+	topologies.emplace_back(std::move(initial_topology));
 }
 
 Train::~Train() {
@@ -62,19 +62,17 @@ void Train::parse_data(Response * res) {
 		double timestamp = it["t"];
 		stock::Candle c { open / 1e3, close / 1e3, high / 1e3, low / 1e3, volume
 				/ 1e6, timestamp / 1e10 };
-		data.push_back(c);
+		data.emplace_back(c);
 	}
 	start();
 }
 
 void Train::init_traders() {
 	size_t topologies_size = topologies.size();
-	traders.resize(topologies_size);
-	for (size_t it = 0; it < topologies_size; ++it) {
-		NeuralNetwork::Topology topology = topologies[it];
-		std::shared_ptr<Trader> trader { new Trader(100000.0, &topology) };
-		traders[it] = trader;
-	}
+	traders.reserve(topologies_size);
+	std::transform(topologies.begin(), topologies.end(),
+			std::back_inserter(traders),
+			[](Topology_ptr topology) -> std::shared_ptr<Trader> {return std::make_shared<Trader>(100000.0, topology);});
 }
 
 void Train::reset_traders() {
@@ -83,44 +81,72 @@ void Train::reset_traders() {
 	traders.resize(topologies_size);
 	if (topologies_size > former_traders_size) {
 		for (size_t it = former_traders_size; it < topologies_size; ++it) {
-			NeuralNetwork::Topology topology = topologies[it];
-			std::shared_ptr<Trader> trader { new Trader(100000.0, &topology) };
+			std::shared_ptr<Topology> topology = topologies[it];
+			std::shared_ptr<Trader> trader = std::make_shared<Trader>(100000.0,
+					topology);
 			traders[it] = trader;
 		}
 	} else {
 		former_traders_size = topologies_size;
 	}
+	long double k10 = 10000;
 	for (size_t it = 0; it < former_traders_size; ++it) {
-		traders[it]->reset(10000, &(topologies[it]));
+		traders[it]->reset(k10, topologies[it]);
 	}
 }
 
 void Train::start() {
+	std::cout << "INIT TRADERS" << std::endl;
 	init_traders();
+	std::cout << "START" << std::endl;
 	for (size_t it = 0; it < 50; ++it) {
+		std::cout << "RUN" << std::endl;
 		run_dataset();
+		std::cout << "NATURAL SELECTION" << std::endl;
 		natural_selection();
+		std::cout << "RESET" << std::endl;
 		reset_traders();
 	}
 	std::cout << "DONE" << std::endl;
 }
 
 void Train::run_dataset() {
-	stock::Stock default_stock = { "Apple", "AAPL", 0 };
 	for (stock::Candle candle : data) {
-		default_stock.value = (candle.open + candle.close) / 2;
+		default_stock->value = (candle.open + candle.close) / 2;
 		for (auto trader : traders) {
-			trader->decide(candle, default_stock);
+			trader->decide(candle, *default_stock);
 		}
 	}
 }
 
 void Train::natural_selection() {
-	size_t topologies_size = topologies.size();
-	for (size_t it = 0; it < topologies_size; ++it) {
-		NeuralNetwork::Topology topology = topologies[it];
+	int topologies_size = topologies.size();
+	TraderResult results[topologies_size];
+	for (int it = 0; it < topologies_size; ++it) {
+		Topology_ptr topology = topologies[it];
 		std::shared_ptr<Trader> trader = traders[it];
-		double wealth = trader->get_wealth();
+		const double wealth = trader->get_wealth();
+		results[it] = TraderResult { wealth, trader, topology };
+	}
+	topologies.clear();
+	std::sort(results, results + topologies_size);
+	std::cout << results[0].wealth << std::endl;
+	int it = topologies_size - 1;
+	if (it > 10) {
+		for (; it > topologies_size / 2; --it) {
+			Topology_ptr topology = results[it].topology;
+			if (topology->optimize()) {
+				topologies.push_back(topology);
+			}
+		}
+	}
+	for (; it >= 0; --it) {
+		Topology_ptr topology = results[it].topology;
+		if (topology->optimize()) {
+			topologies.push_back(topology);
+		} else {
+			topology->new_generation(10, topologies);
+		}
 	}
 }
 

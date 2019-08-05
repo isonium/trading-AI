@@ -11,31 +11,47 @@
 #include <vector>
 #include <queue>
 #include <stdexcept>
-#include "Mutable.h"
+#include <memory>
+#include <stdlib.h>
+#include <iostream>
+
+
 #include "Phenotype.h"
 #include "Mutation.h"
+#include "Neuron.h" // Layer
 
 namespace NeuralNetwork {
 
-class Topology: public Mutable {
+class Topology {
 public:
-	~Topology(){};
+	Topology() {}
+	explicit Topology(Topology const & base);// Private copy constructor
+	~Topology() {};
 
-	size_t get_layers() const;
+	int get_layers() const;
 	std::vector<Phenotype> * get_relationships();
 
-	void set_layers(size_t _layers);
-	void add_relationship(Phenotype);
+	void set_layers(int const & _layers);
+	void add_relationship(Phenotype &, bool);
 
-	void mutate() override;
+	bool optimize();
+	void new_generation(unsigned const & count, std::vector<std::shared_ptr<Topology>> & new_topologies);
+
 
 private:
-	size_t layers = 0;
-	std::vector<Phenotype> relationships = {};
-	std::vector<Mutation> mutations = {};
+
+	int layers = 0;
+	std::vector<int> layers_size = { };
+	std::vector<Phenotype> relationships = { };
+	std::vector<Mutation> mutations = { };
 
 	const int * decide_mutation();
+	std::shared_ptr<Topology> evolve();
+	void mutate();
+	void resize(int const & new_size);
 };
+
+using Topology_ptr = std::shared_ptr<Topology>;
 
 } /* namespace NeuralNetwork */
 

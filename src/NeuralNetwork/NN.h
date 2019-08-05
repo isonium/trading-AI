@@ -18,10 +18,11 @@
 namespace NeuralNetwork {
 
 class Neuron;
+class Topology;
 
 class NN {
 public:
-	explicit NN(Topology * topology);
+	explicit NN(Topology_ptr & topology);
 	virtual ~NN();
 
 	const double compute(const double *);
@@ -32,11 +33,11 @@ public:
 private:
 	std::vector<Layer*> layers;
 
-	Neuron * merge_neuron(int layer, int index);
+	Neuron * merge_neuron(int & layer, int & index);
 
-	void add_neuron(int layer, int index);
-	void connect_neurons(Neuron * input, Neuron * output, int input_layer);
-	void init_topology(Topology * topology);
+	void add_neuron(int & layer, int & index);
+	void connect_neurons(Neuron & input, Neuron & output, int const & input_layer);
+	void init_topology(Topology_ptr & topology);
 	void set_inputs(const double * inputs_vector);
 };
 

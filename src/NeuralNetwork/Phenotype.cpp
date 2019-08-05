@@ -15,7 +15,15 @@ Phenotype::Phenotype(int input[2], float weight) {
 	this->weight = weight;
 }
 
-void Phenotype::update_weight(float gradient) {
+Phenotype::Phenotype(int input[2], int output[2], float weight) {
+	this->input[0] = input[0];
+	this->input[1] = input[1];
+	this->output[0] = output[0];
+	this->output[1] = output[1];
+	this->weight = weight;
+}
+
+void Phenotype::update_weight(float const & gradient) {
 	weight *= gradient;
 }
 
@@ -34,6 +42,10 @@ int * Phenotype::get_output() {
 
 float Phenotype::get_weight() const {
 	return weight;
+}
+
+void Phenotype::resize(int const & former_size, int const & new_size) {
+	if(output[0] == former_size) output[0] = new_size;
 }
 
 }

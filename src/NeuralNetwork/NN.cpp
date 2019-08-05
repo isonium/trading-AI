@@ -9,7 +9,7 @@
 
 namespace NeuralNetwork {
 
-NN::NN(Topology * topology) {
+NN::NN(Topology_ptr & topology) {
 	init_topology(topology);
 }
 
@@ -21,7 +21,7 @@ NN::~NN() {
 	}
 }
 
-void NN::init_topology(Topology * topology) {
+void NN::init_topology(Topology_ptr & topology) {
 	size_t layers_count = topology->get_layers();
 	for (size_t it = 0; it < layers_count; ++it) {
 		Layer * layer = new Layer();
@@ -42,7 +42,7 @@ void NN::init_topology(Topology * topology) {
 	}
 }
 
-Neuron * NN::merge_neuron(int layer, int index) {
+Neuron * NN::merge_neuron(int & layer, int & index) {
 	Layer * _layer = layers.at(layer);
 	try {
 		Neuron * neuron = _layer->at(index);
@@ -57,13 +57,13 @@ Neuron * NN::merge_neuron(int layer, int index) {
 	}
 }
 
-void NN::add_neuron(int layer, int index) {
+void NN::add_neuron(int & layer, int & index) {
 	Neuron * neuron = new Neuron();
 	layers.at(layer)->at(index) = neuron;
 }
 
-void NN::connect_neurons(Neuron * input, Neuron * output, int input_layer) {
-	input->add_connection(output);
+void NN::connect_neurons(Neuron & input, Neuron & output, int const & input_layer) {
+	input.add_connection(&output);
 }
 
 Layer * NN::output_layer() const {

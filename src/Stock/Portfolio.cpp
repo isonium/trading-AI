@@ -52,9 +52,9 @@ void Portfolio::add_position(stock::Stock & _stock, const int quantity) {
 double Portfolio::total_value() const {
 	double total = 0;
 	for (auto position_map_iterator : positions) {
-		total += std::accumulate(position_map_iterator.second->begin(),
-				position_map_iterator.second->end(), 0.0,
-				[](double total, Position * position) {return total + position->stock->value * position->quantity;});
+		for(Position * position: *position_map_iterator.second){
+			total += position->stock->value * position->quantity;
+		}
 	}
 	return total;
 }
@@ -64,10 +64,10 @@ long Portfolio::get_ticker_quantity(const std::string & ticker) const {
 			const_cast<std::vector<Position*> *>(find_position(ticker));
 	if (!positions_vector)
 		return 0;
-	long total =
-			std::accumulate(positions_vector->begin(), positions_vector->end(),
-					LONG_ZERO,
-					[](long total, Position * position) {return total + position->quantity;});
+	auto accumulator =
+			[](long & total, Position * position) -> long {return total + position->quantity;};
+	long total = std::accumulate(positions_vector->begin(),
+			positions_vector->end(), LONG_ZERO, accumulator);
 	return total;
 }
 

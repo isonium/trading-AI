@@ -31,8 +31,7 @@ void AlpacaServiceHTTP::on_resolve(const boost::system::error_code& err,
 	if (err)
 		handle_error("Resolve", err);
 
-	boost::asio::async_connect(socket.lowest_layer(),
-			endpoints, // @suppress("Invalid arguments")
+	boost::asio::async_connect(socket.lowest_layer(), endpoints, // @suppress("Invalid arguments")
 			boost::bind(&AlpacaServiceHTTP::on_connect, this,
 					boost::asio::placeholders::error));
 }
@@ -85,7 +84,7 @@ void AlpacaServiceHTTP::read_lines(const boost::system::error_code& err,
 					boost::asio::placeholders::error, response));
 }
 
-std::vector<std::string> * get_header_pair(std::string const  & header) {
+std::vector<std::string> * get_header_pair(std::string const & header) {
 	std::vector<std::string> * pair = new std::vector<std::string>();
 	int size = header.size();
 	for (int it = 0; it < size - 1; ++it) {

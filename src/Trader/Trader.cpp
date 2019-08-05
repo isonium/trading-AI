@@ -7,11 +7,15 @@
 
 #include "Trader.h"
 
-Trader::Trader(long double bank, NeuralNetwork::Topology * brain_topology) {
+Trader::Trader(long double bank, Topology_ptr & brain_topology) {
 	this->brain = new NeuralNetwork::NN(brain_topology);
 	this->portfolio = new stock::Portfolio();
 	this->bank = bank;
 	this->assets_value = bank;
+}
+
+Trader::Trader(Trader & trader) {
+	copy(trader);
 }
 
 Trader::~Trader() {
@@ -19,7 +23,22 @@ Trader::~Trader() {
 	delete portfolio;
 }
 
-void Trader::reset(long double bank, NeuralNetwork::Topology * brain_topology) {
+Trader & Trader::operator=(Trader & trader){
+	copy(trader);
+	return *this;
+}
+
+void Trader::copy(Trader & trader){
+	bank = trader.bank;
+	assets_value = trader.assets_value;
+	invested_ratio = trader.invested_ratio;
+	delete portfolio;
+	delete brain;
+	portfolio = new stock::Portfolio(*trader.portfolio);
+	brain = new NN(*trader.brain);
+}
+
+void Trader::reset(long double bank, Topology_ptr & brain_topology) {
 	delete brain;
 	delete portfolio;
 	this->bank = bank;

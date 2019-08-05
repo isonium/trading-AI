@@ -16,17 +16,20 @@
 #include "../NeuralNetwork/NN.h"
 #include "../NeuralNetwork/Topology.h"
 
+using namespace NeuralNetwork;
 class Trader {
 public:
-	Trader(long double bank, NeuralNetwork::Topology *brain_topology);
-
+	Trader(long double bank, Topology_ptr & brain_topology);
+	Trader(Trader & trader);
 	virtual ~Trader();
+
+	Trader & operator=(Trader & trader);
 
 	double get_bank() const;
 	double get_wealth() const;
 
-	void decide(stock::Candle &candle, stock::Stock &default_stock);
-	void reset(long double bank, NeuralNetwork::Topology * brain_topology);
+	void decide(stock::Candle & candle, stock::Stock & default_stock);
+	void reset(long double bank, Topology_ptr & brain_topology);
 
 private:
 	double bank;
@@ -39,6 +42,7 @@ private:
 	void buy_stock(stock::Stock &_stock, const int quantity);
 	void sell_stock(stock::Stock * const stockPtr, const long quantity);
 	void update_assets();
+	void copy (Trader & trader);
 };
 
 #endif /* TRADER_H_ */

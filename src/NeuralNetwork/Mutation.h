@@ -8,18 +8,17 @@
 #ifndef NEURALNETWORK_MUTATION_H_
 #define NEURALNETWORK_MUTATION_H_
 
-#include "Mutable.h"
 #include "Phenotype.h"
 
 namespace NeuralNetwork {
 
-class Mutation: public Mutable {
+class Mutation {
 public:
 	explicit Mutation(Phenotype * phenotype);
 	~Mutation() { };
 
-	unsigned get_iterations() const;
-	void mutate() override;
+	unsigned const & get_iterations() const;
+	void mutate();
 
 private:
 	Phenotype * phenotype;

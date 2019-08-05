@@ -14,7 +14,7 @@ Mutation::Mutation(Phenotype * _phenotype) {
 	phenotype = _phenotype;
 }
 
-unsigned Mutation::get_iterations() const {
+unsigned const & Mutation::get_iterations() const {
 	if(gradient >= .9 && gradient <= 1.1){
 		return UINT_MAX;
 	}

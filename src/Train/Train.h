@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 #include "structures.h"
 #include "../Simulation/Simulation.h"
@@ -26,10 +27,11 @@
 
 namespace Train {
 using json = nlohmann::json;
+using namespace NeuralNetwork;
 
 class Train {
 public:
-	Train(int initial_topology_count, int inputs, int outputs);
+	Train(int const & initial_topology_count, int const & inputs, int const & outputs);
 	~Train();
 
 	void load_data();
@@ -38,9 +40,10 @@ private:
 	Simulation simulation;
 	std::vector<std::shared_ptr<Trader>> traders;
 	std::vector<stock::Candle> data;
-	std::vector<NeuralNetwork::Topology> topologies;
+	std::vector<Topology_ptr> topologies;
+	stock::Stock * default_stock;
 
-	void parse_data(Response * data);
+	void parse_data(Response * res);
 	void start();
 	void init_traders();
 	void reset_traders();

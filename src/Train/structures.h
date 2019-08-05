@@ -13,11 +13,20 @@
 #include "../NeuralNetwork/Topology.h"
 
 namespace Train {
+using namespace NeuralNetwork;
 
 struct TraderResult {
-	const double wealth;
+	double wealth;
 	std::shared_ptr<Trader> trader;
-	NeuralNetwork::Topology topology;
+	std::shared_ptr<Topology> topology;
+
+	const bool operator<(const TraderResult& comparison) const {
+		return this->wealth < comparison.wealth;
+	}
+
+	const bool operator>(const TraderResult& comparison) const {
+		return this->wealth > comparison.wealth;
+	}
 };
 
 }
