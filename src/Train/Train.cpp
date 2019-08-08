@@ -10,6 +10,8 @@
 #define online true
 
 namespace Train {
+constexpr long double k100 = 100000;
+
 Train::Train(int const & initial_topology_count, int const & inputs,
 		int const & outputs) :
 		topologies() {
@@ -82,16 +84,15 @@ void Train::reset_traders() {
 	if (topologies_size > former_traders_size) {
 		for (size_t it = former_traders_size; it < topologies_size; ++it) {
 			std::shared_ptr<Topology> topology = topologies[it];
-			std::shared_ptr<Trader> trader = std::make_shared<Trader>(100000.0,
+			std::shared_ptr<Trader> trader = std::make_shared<Trader>(k100,
 					topology);
 			traders[it] = trader;
 		}
 	} else {
 		former_traders_size = topologies_size;
 	}
-	long double k10 = 10000;
 	for (size_t it = 0; it < former_traders_size; ++it) {
-		traders[it]->reset(k10, topologies[it]);
+		traders[it]->reset(k100, topologies[it]);
 	}
 }
 
@@ -101,7 +102,11 @@ void Train::start() {
 	std::cout << "START" << std::endl;
 	for (size_t it = 0; it < 50; ++it) {
 		std::cout << "RUN" << std::endl;
+		auto start = std::chrono::high_resolution_clock::now();
 		run_dataset();
+		auto stop = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+		cout << "TIME ELAPSED: " << duration.count() << endl;
 		std::cout << "NATURAL SELECTION" << std::endl;
 		natural_selection();
 		std::cout << "RESET" << std::endl;
@@ -110,14 +115,31 @@ void Train::start() {
 	std::cout << "DONE" << std::endl;
 }
 
+
+#ifdef MULTITHREADED
 void Train::run_dataset() {
 	for (stock::Candle candle : data) {
 		default_stock->value = (candle.open + candle.close) / 2;
-		for (auto trader : traders) {
+		Threading::ThreadPool threadpool(8);
+		for (auto & trader : traders) {
+			std::function<void()> lambda =
+					[this, &candle, &trader]() -> void {trader->decide(candle, *default_stock);};
+			threadpool.add_task(lambda);
+		}
+		threadpool.run();
+	}
+}
+
+#else
+void Train::run_dataset() {
+	for (stock::Candle candle : data) {
+		default_stock->value = (candle.open + candle.close) / 2;
+		for (auto & trader : traders) {
 			trader->decide(candle, *default_stock);
 		}
 	}
 }
+#endif
 
 void Train::natural_selection() {
 	int topologies_size = topologies.size();

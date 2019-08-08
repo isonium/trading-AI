@@ -15,6 +15,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <chrono>
 
 #include "structures.h"
 #include "../Simulation/Simulation.h"
@@ -24,6 +25,7 @@
 #include "../Stock/Stock.h"
 #include "../NeuralNetwork/Topology.h"
 #include "../NeuralNetwork/NN.h"
+#include "../Threading/ThreadPool.h"
 
 namespace Train {
 using json = nlohmann::json;

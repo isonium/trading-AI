@@ -42,10 +42,10 @@ void Trader::reset(long double bank, Topology_ptr & brain_topology) {
 	delete brain;
 	delete portfolio;
 	this->bank = bank;
+	assets_value = bank;
+	invested_ratio = 0.0;
 	brain = new NeuralNetwork::NN (brain_topology);
 	portfolio = new stock::Portfolio();
-	assets_value = 0;
-	invested_ratio = 0.0;
 }
 
 double Trader::get_bank() const {
@@ -77,7 +77,7 @@ void Trader::sell_stock(stock::Stock * const stockPtr, const long quantity) {
 	bank += quantity * stockPtr->value;
 }
 
-void Trader::decide(stock::Candle &candle, stock::Stock &default_stock) {
+void Trader::decide(stock::Candle & candle, stock::Stock &default_stock) {
 	update_assets();
 	const double inputs[5] = { candle.open, candle.close, candle.volume,
 			candle.timestamp, invested_ratio };
