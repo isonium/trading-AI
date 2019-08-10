@@ -23,12 +23,12 @@ Trader::~Trader() {
 	delete portfolio;
 }
 
-Trader & Trader::operator=(Trader & trader){
+Trader & Trader::operator=(Trader & trader) {
 	copy(trader);
 	return *this;
 }
 
-void Trader::copy(Trader & trader){
+void Trader::copy(Trader & trader) {
 	bank = trader.bank;
 	assets_value = trader.assets_value;
 	invested_ratio = trader.invested_ratio;
@@ -44,7 +44,7 @@ void Trader::reset(long double bank, Topology_ptr & brain_topology) {
 	this->bank = bank;
 	assets_value = bank;
 	invested_ratio = 0.0;
-	brain = new NeuralNetwork::NN (brain_topology);
+	brain = new NeuralNetwork::NN(brain_topology);
 	portfolio = new stock::Portfolio();
 }
 
@@ -77,7 +77,7 @@ void Trader::sell_stock(stock::Stock * const stockPtr, const long quantity) {
 	bank += quantity * stockPtr->value;
 }
 
-void Trader::decide(stock::Candle & candle, stock::Stock &default_stock) {
+void Trader::decide(stock::Candle & candle, stock::Stock & default_stock) {
 	update_assets();
 	const double inputs[5] = { candle.open, candle.close, candle.volume,
 			candle.timestamp, invested_ratio };

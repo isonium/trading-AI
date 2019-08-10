@@ -45,8 +45,6 @@ public:
 		service._post(path, cb);
 	}
 
-	virtual ~AlpacaServiceHTTP();
-
 	template<class CBtype>
 	void _get(std::string path, CBtype cb) {
 		fetch(path, "GET ", cb);
@@ -58,6 +56,8 @@ public:
 		fetch(path, "POST ", cb);
 		io_context.run();
 	}
+
+	virtual ~AlpacaServiceHTTP();
 
 private:
 	const std::string host = "data.alpaca.markets";

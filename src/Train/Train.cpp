@@ -8,6 +8,7 @@
 #include "Train.h"
 
 #define online true
+#define MULTITHREADED
 
 namespace Train {
 constexpr long double k100 = 100000;
@@ -105,7 +106,8 @@ void Train::start() {
 		auto start = std::chrono::high_resolution_clock::now();
 		run_dataset();
 		auto stop = std::chrono::high_resolution_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
+				stop - start);
 		cout << "TIME ELAPSED: " << duration.count() << endl;
 		std::cout << "NATURAL SELECTION" << std::endl;
 		natural_selection();
@@ -115,18 +117,13 @@ void Train::start() {
 	std::cout << "DONE" << std::endl;
 }
 
-
 #ifdef MULTITHREADED
 void Train::run_dataset() {
 	for (stock::Candle candle : data) {
 		default_stock->value = (candle.open + candle.close) / 2;
-		Threading::ThreadPool threadpool(8);
-		for (auto & trader : traders) {
-			std::function<void()> lambda =
-					[this, &candle, &trader]() -> void {trader->decide(candle, *default_stock);};
-			threadpool.add_task(lambda);
-		}
-		threadpool.run();
+		std::function<void(std::shared_ptr<Trader> &)> lambda =
+				[this, &candle](std::shared_ptr<Trader> & trader) -> void {trader->decide(candle, *default_stock);};
+		Threading::forEach(traders.begin(), traders.end(), lambda);
 	}
 }
 

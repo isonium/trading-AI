@@ -25,7 +25,7 @@
 #include "../Stock/Stock.h"
 #include "../NeuralNetwork/Topology.h"
 #include "../NeuralNetwork/NN.h"
-#include "../Threading/ThreadPool.h"
+#include "../Threading/multithreaded_methods.h"
 
 namespace Train {
 using json = nlohmann::json;
