@@ -9,6 +9,7 @@
 #define TRADER_H_
 
 #include <boost/bind.hpp>
+#include <exception>
 
 #include "../Stock/Stock.h"
 #include "../Stock/Portfolio.h"
@@ -17,6 +18,13 @@
 #include "../NeuralNetwork/Topology.h"
 
 using namespace NeuralNetwork;
+
+struct NotEnoughFunds: public std::exception {
+	const char * what() const throw () {
+		return "This trader does not have enough funds to buy this stock";
+	}
+};
+
 class Trader {
 public:
 	Trader(long double bank, Topology_ptr & brain_topology);
@@ -29,7 +37,7 @@ public:
 	double get_wealth() const;
 
 	void decide(stock::Candle & candle, stock::Stock & default_stock);
-	void reset(long double bank, Topology_ptr & brain_topology);
+	void reset(long double const & bank, Topology_ptr & brain_topology);
 
 private:
 	double bank;
@@ -38,11 +46,11 @@ private:
 	stock::Portfolio * portfolio;
 	NeuralNetwork::NN * brain;
 
-	void rebalance(const double, stock::Stock &default_stock);
-	void buy_stock(stock::Stock &_stock, const int quantity);
-	void sell_stock(stock::Stock * const stockPtr, const long quantity);
+	void rebalance(const double &, stock::Stock &default_stock);
+	void buy_stock(stock::Stock &_stock, const long & quantity);
+	void sell_stock(stock::Stock * const stockPtr, const long & quantity);
 	void update_assets();
-	void copy (Trader & trader);
+	void copy(Trader & trader);
 };
 
 #endif /* TRADER_H_ */

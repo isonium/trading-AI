@@ -43,6 +43,7 @@ private:
 	std::vector<std::shared_ptr<Trader>> traders;
 	std::vector<stock::Candle> data;
 	std::vector<Topology_ptr> topologies;
+	TraderResult best_historical_topology;
 	stock::Stock * default_stock;
 
 	void parse_data(Response * res);

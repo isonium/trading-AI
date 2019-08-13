@@ -38,7 +38,7 @@ void Trader::copy(Trader & trader) {
 	brain = new NN(*trader.brain);
 }
 
-void Trader::reset(long double bank, Topology_ptr & brain_topology) {
+void Trader::reset(long double const & bank, Topology_ptr & brain_topology) {
 	delete brain;
 	delete portfolio;
 	this->bank = bank;
@@ -62,17 +62,17 @@ void Trader::update_assets() {
 	invested_ratio = portfolio_value / assets_value;
 }
 
-void Trader::buy_stock(stock::Stock &_stock, const int quantity) {
+void Trader::buy_stock(stock::Stock &_stock, const long & quantity) {
 	const long double value = _stock.value * quantity;
 	if (bank >= value) {
 		bank -= value;
 		portfolio->add_position(_stock, quantity);
 	} else {
-		throw "This trader does not have enough funds to buy this stock";
+		throw NotEnoughFunds();
 	}
 }
 
-void Trader::sell_stock(stock::Stock * const stockPtr, const long quantity) {
+void Trader::sell_stock(stock::Stock * const stockPtr, const long & quantity) {
 	portfolio->remove_stocks(stockPtr->ticker, quantity);
 	bank += quantity * stockPtr->value;
 }
@@ -85,7 +85,7 @@ void Trader::decide(stock::Candle & candle, stock::Stock & default_stock) {
 	rebalance(output, default_stock);
 }
 
-void Trader::rebalance(const double new_ratio, stock::Stock &default_stock) {
+void Trader::rebalance(const double & new_ratio, stock::Stock & default_stock) {
 	const double delta = new_ratio - invested_ratio;
 	const long new_investments = round(delta * (bank + assets_value));
 	if (new_investments > 0) {

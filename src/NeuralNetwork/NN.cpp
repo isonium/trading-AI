@@ -27,11 +27,14 @@ void NN::init_topology(Topology_ptr & topology) {
 		Layer * layer = new Layer();
 		layers.push_back(layer);
 	}
-	std::vector<Phenotype> * relationships = topology->get_relationships();
-	for (Phenotype phenotype : *relationships) {
-		int * input = phenotype.get_input();
-		int * output = phenotype.get_output();
-		float weight = phenotype.get_weight();
+	std::vector<std::shared_ptr<Phenotype>> relationships =
+			topology->get_relationships();
+	for (std::shared_ptr<Phenotype> & phenotype : relationships) {
+		if (phenotype->is_disabled())
+			continue;
+		int * input = phenotype->get_input();
+		int * output = phenotype->get_output();
+		float weight = phenotype->get_weight();
 		int input_layer = input[0];
 		int input_index = input[1];
 		int output_layer = output[0];
@@ -62,7 +65,8 @@ void NN::add_neuron(int & layer, int & index) {
 	layers.at(layer)->at(index) = neuron;
 }
 
-void NN::connect_neurons(Neuron & input, Neuron & output, int const & input_layer) {
+void NN::connect_neurons(Neuron & input, Neuron & output,
+		int const & input_layer) {
 	input.add_connection(&output);
 }
 

@@ -17,7 +17,6 @@ using namespace NeuralNetwork;
 
 struct TraderResult {
 	double wealth;
-	std::shared_ptr<Trader> trader;
 	std::shared_ptr<Topology> topology;
 
 	const bool operator<(const TraderResult& comparison) const {

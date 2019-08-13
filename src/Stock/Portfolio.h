@@ -10,9 +10,17 @@
 
 #include <vector>
 #include <numeric>
+#include <exception>
+
 #include "Stock.h"
 
 namespace stock {
+
+class NoTickerException: public std::exception {
+	const char * what() const throw() {
+		return "This portfolio does not have enough stocks with this ticker";
+	}
+};
 
 class Portfolio {
 public:

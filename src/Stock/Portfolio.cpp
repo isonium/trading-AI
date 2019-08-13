@@ -76,7 +76,7 @@ void Portfolio::remove_stocks(const std::string & ticker, long quantity) {
 			const_cast<std::vector<Position*> *>(find_position(ticker));
 	long total_owned = get_ticker_quantity(ticker);
 	if (total_owned < quantity)
-		throw "This portfolio does not have enough stocks with this ticker";
+		throw NoTickerException();
 	while (quantity > 0) {
 		Position* first_position_ptr = positions_vector->at(0);
 		if (first_position_ptr->quantity > quantity) {
