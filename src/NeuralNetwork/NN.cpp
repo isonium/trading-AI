@@ -89,7 +89,7 @@ const double NN::compute(const double * inputs_vector) {
 	Neuron * neuron = layers[length - 1]->at(0);
 	const double value = neuron->get_value();
 	neuron->set_value(0);
-	return value;
+	return 1/(1 + std::exp(-value));
 }
 
 void NN::set_inputs(const double * inputs_array) {

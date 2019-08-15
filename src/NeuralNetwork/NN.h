@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <vector>
+#include <math.h>
 
 #include "Connection.h"
 #include "Neuron.h"

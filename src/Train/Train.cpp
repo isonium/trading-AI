@@ -12,6 +12,7 @@
 
 namespace Train {
 constexpr long double k100 = 100000;
+constexpr int MAX_INVIDUALS = 500;
 
 Train::Train(int const & initial_topology_count, int const & inputs,
 		int const & outputs) :
@@ -101,7 +102,12 @@ void Train::reset_traders() {
 void Train::start() {
 	init_traders();
 	for (size_t it = 0; it < 1000; ++it) {
+		auto start = std::chrono::high_resolution_clock::now();
 		run_dataset();
+		auto stop = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
+				stop - start);
+		cout << "TIME ELAPSED: " << duration.count() << endl;
 		natural_selection();
 		reset_traders();
 	}
@@ -134,35 +140,41 @@ void Train::natural_selection() {
 	TraderResult results[topologies_size];
 	for (int it = 0; it < topologies_size; ++it) {
 		Topology_ptr topology(topologies[it]);
-		std::shared_ptr<Trader> trader = traders[it];
-		const double wealth = trader->get_wealth();
-		results[it] = TraderResult { wealth, topology };
+		results[it] = TraderResult { traders[it]->get_wealth(), topology };
 	}
 	topologies.clear();
 
 	std::sort(results, results + topologies_size);
 
-	int half = topologies_size > 100 ? 50 : topologies_size / 2;
+	int quarter =
+			topologies_size > MAX_INVIDUALS ?
+					MAX_INVIDUALS / 4 : topologies_size / 4;
+	int new_individuals = -1;
 	for (int it = 0; it < topologies_size; ++it) {
 		const double & wealth = results[it].wealth;
 		Topology_ptr & topology = results[it].topology;
 		if (topology->optimize(wealth)) {
 			topologies.push_back(topology);
-		} else if (it >= half) {
-			topology->new_generation(3, topologies, wealth);
+		} else if (it >= quarter) {
+			if (new_individuals == -1) {
+				new_individuals = (MAX_INVIDUALS - topologies.size())
+						/ (topologies_size - it);
+				if (new_individuals <= 0)
+					new_individuals = 1;
+			}
+			topology->new_generation(new_individuals, topologies, wealth);
 		}
 	}
-	TraderResult most_successfull = results[topologies_size - 1];
-	/*
-	if (most_successfull > best_historical_topology) {
-		best_historical_topology.wealth = most_successfull.wealth;
+	TraderResult most_successful = results[topologies_size - 1];
+	if (most_successful > best_historical_topology) {
+		best_historical_topology.wealth = most_successful.wealth;
 		best_historical_topology.topology = std::make_shared<Topology>(
-				*(most_successfull.topology));
-	} else {
-		best_historical_topology.topology->new_generation(3, topologies,
-				best_historical_topology.wealth);
-	}*/
-	std::cout << "Richest trader: " << most_successfull.wealth << std::endl;
+				*(most_successful.topology));
+	}
+	best_historical_topology.topology->new_generation(3, topologies,
+			best_historical_topology.wealth);
+	std::cout << "Richest trader: " << most_successful.wealth << std::endl;
+	std::cout << "SIZE: " << topologies.size() << std::endl;
 }
 
 #if GPU
