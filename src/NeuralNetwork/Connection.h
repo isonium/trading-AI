@@ -8,7 +8,7 @@
 #ifndef NEURALNETWORK_CONNECTION_H_
 #define NEURALNETWORK_CONNECTION_H_
 
-#include <math.h>
+#include "NeuralNetwork.h"
 #include "Neuron.h"
 
 namespace NeuralNetwork {

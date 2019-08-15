@@ -11,12 +11,24 @@
 #include <string>
 #include <nlohmann/json.hpp>
 #include <time.h>
+#include <functional>
 
 #include "Train/Train.h"
+#include "Trader/Simulation.h"
+#include "AlpacaParser/AlpacaParser.h"
+
+void start() {
+	DataParser::AlpacaParser parser;
+	std::function<void()> && lambda = [&parser](){
+		Trading::Simulation * sim = new Trading::Simulation(parser.get_data());
+		Train::Train train(sim, 100, 7, 1);
+		train.start();
+	};
+	parser.load_data(lambda);
+}
 
 int main() {
 	srand (time(NULL));
-	Train::Train train(100, 7, 1);
-	train.load_data();
+	start();
 	return 0;
 }

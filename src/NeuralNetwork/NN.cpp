@@ -62,7 +62,7 @@ Neuron * NN::merge_neuron(int & layer, int & index) {
 
 void NN::add_neuron(int & layer, int & index) {
 	Neuron * neuron = new Neuron();
-	layers.at(layer)->at(index) = neuron;
+	layers[layer]->at(index) = neuron;
 }
 
 void NN::connect_neurons(Neuron & input, Neuron & output,
@@ -89,11 +89,11 @@ const double NN::compute(const double * inputs_vector) {
 	Neuron * neuron = layers[length - 1]->at(0);
 	const double value = neuron->get_value();
 	neuron->set_value(0);
-	return value;
+	return sigmoid(value);
 }
 
 void NN::set_inputs(const double * inputs_array) {
-	Layer * first_layer = layers.at(0);
+	Layer * first_layer = layers[0];
 	size_t length = first_layer->size();
 	for (size_t i = 0; i < length; ++i) {
 		Neuron * neuron = first_layer->at(i);

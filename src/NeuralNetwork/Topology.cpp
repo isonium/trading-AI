@@ -113,15 +113,17 @@ void Topology::mutate() {
 	}
 	int input[2] = { input_index, input_position };
 	int output[2] = { output_index, output_position };
+	float weight = (std::rand() % 100) / 100.0;
 	std::shared_ptr<Phenotype> && phenotype = std::make_shared<Phenotype>(input,
-			output, .5);
+			output, weight);
 	add_relationship(phenotype);
 	if (new_output) {
 		int _back = layers_size.back();
 		for (int i = 0; i < _back; ++i) {
+			float _weight = (std::rand() % 100) / 100.0;
 			int output_output[2] = { layers - 1, i };
 			std::shared_ptr<Phenotype> && phenotype =
-					std::make_shared<Phenotype>(output, output_output, .5);
+					std::make_shared<Phenotype>(output, output_output, _weight);
 			add_relationship(phenotype);
 		}
 	}

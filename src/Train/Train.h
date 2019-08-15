@@ -8,48 +8,42 @@
 #ifndef TRAIN_TRAIN_H_
 #define TRAIN_TRAIN_H_
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <nlohmann/json.hpp>
 #include <unordered_map>
 #include <vector>
 #include <memory>
 #include <algorithm>
 #include <chrono>
+#include <functional>
+#include <stdlib.h>
 
 #include "structures.h"
-#include "../Simulation/Simulation.h"
 #include "../Trader/Trader.h"
-#include "../AlpacaServiceHTTP/AlpacaServiceHTTP.h"
 #include "../Event/Event.hpp"
 #include "../Stock/Stock.h"
 #include "../NeuralNetwork/Topology.h"
 #include "../NeuralNetwork/NN.h"
-#include "../Threading/multithreaded_methods.h"
+#include "../Game/Game.h"
+#include "../Game/Player.h"
+#include "../Parser/Parser.h"
 
 namespace Train {
-using json = nlohmann::json;
 using namespace NeuralNetwork;
+using namespace Trading;
 
 class Train {
 public:
-	Train(int const & initial_topology_count, int const & inputs, int const & outputs);
+	Train(Game::Game * game, int const & initial_topology_count, int const & inputs,
+			int const & outputs);
 	~Train();
 
-	void load_data();
+	void start();
 
 private:
-	Simulation simulation;
-	std::vector<std::shared_ptr<Trader>> traders;
-	std::vector<stock::Candle> data;
+	Game::Game * game;
 	std::vector<Topology_ptr> topologies;
 	TraderResult best_historical_topology;
-	stock::Stock * default_stock;
 
-	void parse_data(Response * res);
-	void start();
-	void init_traders();
-	void reset_traders();
+	void reset_players();
 	void run_dataset();
 	void natural_selection();
 };

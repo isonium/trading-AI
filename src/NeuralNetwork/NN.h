@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "Connection.h"
+#include "NeuralNetwork.h"
 #include "Neuron.h"
 #include "Topology.h"
 

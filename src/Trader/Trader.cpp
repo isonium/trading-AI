@@ -7,11 +7,14 @@
 
 #include "Trader.h"
 
-Trader::Trader(long double bank, Topology_ptr & brain_topology) {
+namespace Trading {
+Trader::Trader(long double const & bank, Topology_ptr & brain_topology,
+		State * game_state) {
 	this->brain = new NeuralNetwork::NN(brain_topology);
 	this->portfolio = new stock::Portfolio();
 	this->bank = bank;
 	this->assets_value = bank;
+	this->game_state = game_state;
 }
 
 Trader::Trader(Trader & trader) {
@@ -38,11 +41,11 @@ void Trader::copy(Trader & trader) {
 	brain = new NN(*trader.brain);
 }
 
-void Trader::reset(long double const & bank, Topology_ptr & brain_topology) {
+void Trader::reset(Topology_ptr & brain_topology) {
 	delete brain;
 	delete portfolio;
-	this->bank = bank;
-	assets_value = bank;
+	this->bank = 100000;
+	assets_value = 100000;
 	invested_ratio = 0.0;
 	brain = new NeuralNetwork::NN(brain_topology);
 	portfolio = new stock::Portfolio();
@@ -52,7 +55,7 @@ double Trader::get_bank() const {
 	return bank;
 }
 
-double Trader::get_wealth() const {
+double Trader::get_result() const {
 	return bank + portfolio->total_value();
 }
 
@@ -77,12 +80,14 @@ void Trader::sell_stock(stock::Stock * const stockPtr, const long & quantity) {
 	bank += quantity * stockPtr->value;
 }
 
-void Trader::decide(stock::Candle & candle, stock::Stock & default_stock) {
+void Trader::decide() {
 	update_assets();
-	const double inputs[5] = { candle.open, candle.close, candle.volume,
-			candle.timestamp, invested_ratio };
+	stock::Candle * candle = game_state->candle;
+	stock::Stock * default_stock = game_state->default_stock;
+	const double inputs[5] = { candle->open, candle->close, candle->volume,
+			candle->timestamp, invested_ratio };
 	const double output = brain->compute(inputs);
-	rebalance(output, default_stock);
+	rebalance(output, *default_stock);
 }
 
 void Trader::rebalance(const double & new_ratio, stock::Stock & default_stock) {
@@ -96,3 +101,4 @@ void Trader::rebalance(const double & new_ratio, stock::Stock & default_stock) {
 	// If 0 don't do anything
 }
 
+}
