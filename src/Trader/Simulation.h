@@ -21,7 +21,7 @@ namespace Trading {
 
 class Simulation: public Game::Game {
 public:
-	explicit Simulation(std::vector<stock::Candle> & _data);
+	explicit Simulation(std::vector<stock::Candle *> & _data);
 	virtual ~Simulation();
 
 	void reset_players(std::vector<Topology_ptr> &);
@@ -29,11 +29,11 @@ public:
 	void get_results(std::vector<double> &);
 
 private:
-	State state;
+	State * state;
 	std::vector<Trader_ptr> players;
-	std::vector<stock::Candle> data;
+	std::vector<stock::Candle *> data;
 
-	void update_state(stock::Candle & candle);
+	void update_state(stock::Candle * candle);
 };
 
 } /* namespace Trader */

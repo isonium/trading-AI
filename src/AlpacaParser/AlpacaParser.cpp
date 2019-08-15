@@ -19,17 +19,18 @@ void AlpacaParser::parse_data(Response * res) {
 		double low = it["l"];
 		double volume = it["v"];
 		double timestamp = it["t"];
-		stock::Candle c { open / 1e3, close / 1e3, high / 1e3, low / 1e3, volume
+		stock::Candle * c = new stock::Candle { open / 1e3, close / 1e3, high / 1e3, low / 1e3, volume
 				/ 1e6, timestamp / 1e10 };
-		data.emplace_back(std::move(c));
+		data.emplace_back(c);
 	}
 	callback();
 }
 
 AlpacaParser::~AlpacaParser() {
+	for(stock::Candle * c: data) delete c;
 }
 
-std::vector<stock::Candle> & AlpacaParser::get_data() {
+std::vector<stock::Candle*> & AlpacaParser::get_data() {
 	return data;
 }
 

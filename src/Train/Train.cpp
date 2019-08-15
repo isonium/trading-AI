@@ -8,7 +8,7 @@
 #include "Train.h"
 #define MULTITHREADED
 
-constexpr int MAX_INVIDUALS = 100;
+constexpr int MAX_INVIDUALS = 500;
 
 namespace Train {
 
@@ -45,7 +45,7 @@ void Train::start() {
 		auto start = std::chrono::high_resolution_clock::now();
 		run_dataset();
 		auto stop = std::chrono::high_resolution_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::seconds>(
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
 				stop - start);
 		cout << "TIME ELAPSED: " << duration.count() << endl;
 		natural_selection();

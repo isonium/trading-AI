@@ -10,14 +10,17 @@
 namespace Trading {
 constexpr long double k100 = 100000;
 
-Simulation::Simulation(std::vector<stock::Candle> & _data) {
-	for (stock::Candle & data_point : _data)
-		data.push_back(std::move(data_point));
-	state = State { &(data[0]), new stock::Stock { "Apple", "AAPL", 0 } };
-	std::cout << "STOCK PERFORMANCE: " << (data.back().close - data[0].open)/data[0].open << std::endl;
+Simulation::Simulation(std::vector<stock::Candle *> & _data) {
+	for (stock::Candle * data_point : _data)
+		data.push_back(data_point);
+	state = new State { (data[0]), new stock::Stock { "Apple", "AAPL", 0 } };
+	std::cout << "STOCK PERFORMANCE: "
+			<< (data.back()->close - data[0]->open) / data[0]->open << std::endl;
 }
 
 Simulation::~Simulation() {
+	delete state->default_stock;
+	delete state;
 }
 
 void Simulation::reset_players(std::vector<Topology_ptr> & topologies) {
@@ -28,7 +31,7 @@ void Simulation::reset_players(std::vector<Topology_ptr> & topologies) {
 		for (size_t it = former_players_size; it < topologies_size; ++it) {
 			std::shared_ptr<Topology> topology = topologies[it];
 			std::shared_ptr<Trader> trader = std::make_shared<Trader>(k100,
-					topology, &state);
+					topology, state);
 			players[it] = trader;
 		}
 	} else {
@@ -39,13 +42,13 @@ void Simulation::reset_players(std::vector<Topology_ptr> & topologies) {
 	}
 }
 
-void Simulation::update_state(stock::Candle & candle) {
-	state.default_stock->value = (candle.open + candle.close) / 2;
-	state.candle = &candle;
+void Simulation::update_state(stock::Candle * candle) {
+	state->default_stock->value = (candle->open + candle->close) / 2;
+	state->candle = candle;
 }
 
 void Simulation::run_generation() {
-	for (stock::Candle & candle : data) {
+	for (stock::Candle * candle : data) {
 		update_state(candle);
 		std::function<void(std::shared_ptr<Trader> &)> lambda =
 				[](std::shared_ptr<Trader> & trader) -> void {trader->decide();};

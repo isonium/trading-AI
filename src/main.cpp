@@ -20,7 +20,8 @@
 void start() {
 	DataParser::AlpacaParser parser;
 	std::function<void()> && lambda = [&parser](){
-		Trading::Simulation * sim = new Trading::Simulation(parser.get_data());
+		std::vector<stock::Candle *> & data = parser.get_data();
+		Trading::Simulation * sim = new Trading::Simulation(data);
 		Train::Train train(sim, 100, 7, 1);
 		train.start();
 	};
