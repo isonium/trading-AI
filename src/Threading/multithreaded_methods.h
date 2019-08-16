@@ -14,7 +14,7 @@ namespace Threading {
 
 template<typename Iterable, typename Callable>
 static void forEach(Iterable _begin, Iterable _end, Callable & cb,
-		int max_threads = 8) {
+		int max_threads = std::thread::hardware_concurrency()) {
 	int size = _end - _begin;
 	if (!size)
 		return;

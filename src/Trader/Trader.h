@@ -38,10 +38,6 @@ public:
 
 	double get_bank() const;
 
-	double get_result() const;
-	void decide();
-	void reset(Topology_ptr & brain_topology);
-
 private:
 	State * game_state;
 	double bank;
@@ -55,6 +51,10 @@ private:
 	void sell_stock(stock::Stock * const stockPtr, const long & quantity);
 	void update_assets();
 	void copy(Trader & trader);
+
+	double do_get_result() const;
+	void do_decide();
+	void do_reset(Topology_ptr & brain_topology);
 };
 
 using Trader_ptr = std::shared_ptr<Trader>;

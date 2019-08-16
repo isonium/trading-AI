@@ -24,16 +24,16 @@ public:
 	explicit Simulation(std::vector<stock::Candle *> & _data);
 	virtual ~Simulation();
 
-	void reset_players(std::vector<Topology_ptr> &);
-	void run_generation();
-	void get_results(std::vector<double> &);
-
 private:
 	State * state;
 	std::vector<Trader_ptr> players;
 	std::vector<stock::Candle *> data;
 
 	void update_state(stock::Candle * candle);
+
+	void do_reset_players(std::vector<Topology_ptr> &);
+	void do_run_generation();
+	void do_get_results(std::vector<double> &);
 };
 
 } /* namespace Trader */

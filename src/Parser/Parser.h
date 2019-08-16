@@ -17,11 +17,12 @@ namespace fetch {
 
 class Parser {
 public:
-	virtual ~Parser(){}
+	virtual ~Parser();
 
-	virtual void load_data(std::function<void()> & cb) = 0;
+	void load_data(std::function<void()> & cb);
 
 private:
+	virtual void do_load_data(std::function<void()> & cb) = 0;
 	virtual void parse_data(Response * res) = 0;
 };
 

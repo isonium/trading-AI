@@ -19,14 +19,19 @@ namespace Game {
 
 class Game {
 public:
-	virtual ~Game() {
-	}
+	virtual ~Game();
 
-	virtual void reset_players(std::vector<Topology_ptr> &) = 0;
 
-	virtual void run_generation() = 0;
+	void run_generation();
 
-	virtual void get_results(std::vector<double> &) = 0;
+	void get_results(std::vector<double> &);
+
+	void reset_players(std::vector<Topology_ptr> &);
+
+private:
+	virtual void do_run_generation() = 0;
+	virtual void do_get_results(std::vector<double> &) = 0;
+	virtual void do_reset_players(std::vector<Topology_ptr> &) = 0;
 };
 }
 

@@ -36,7 +36,7 @@ std::vector<stock::Candle*> & AlpacaParser::get_data() {
 
 #if online
 
-void AlpacaParser::load_data(std::function<void()> & cb) {
+void AlpacaParser::do_load_data(std::function<void()> & cb) {
 	callback = cb;
 	auto lambda = [this](Response * response) {
 		parse_data(response);

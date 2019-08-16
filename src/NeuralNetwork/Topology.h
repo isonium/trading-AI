@@ -20,9 +20,11 @@
 #include "Mutation.h"
 #include "Neuron.h" // Layer
 
+#include "../Serializer/Serializer.h"
+
 namespace NeuralNetwork {
 
-class Topology {
+class Topology: public Serializer::Serializable {
 public:
 	Topology() {}
 	explicit Topology(Topology const &);// Private copy constructor
@@ -52,6 +54,8 @@ private:
 	void mutate();
 	void new_mutation(double const & wealth);
 	void resize(int const & new_size);
+
+	std::string parse_to_string() const;
 };
 
 using Topology_ptr = std::shared_ptr<Topology>;

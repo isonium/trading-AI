@@ -25,6 +25,7 @@
 #include "../Game/Game.h"
 #include "../Game/Player.h"
 #include "../Parser/Parser.h"
+#include "../Serializer/Serializer.h"
 
 namespace Train {
 using namespace NeuralNetwork;

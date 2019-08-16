@@ -41,7 +41,7 @@ void Trader::copy(Trader & trader) {
 	brain = new NN(*trader.brain);
 }
 
-void Trader::reset(Topology_ptr & brain_topology) {
+void Trader::do_reset(Topology_ptr & brain_topology) {
 	delete brain;
 	delete portfolio;
 	this->bank = 100000;
@@ -55,7 +55,7 @@ double Trader::get_bank() const {
 	return bank;
 }
 
-double Trader::get_result() const {
+double Trader::do_get_result() const {
 	return bank + portfolio->total_value();
 }
 
@@ -80,7 +80,7 @@ void Trader::sell_stock(stock::Stock * const stockPtr, const long & quantity) {
 	bank += quantity * stockPtr->value;
 }
 
-void Trader::decide() {
+void Trader::do_decide() {
 	update_assets();
 	stock::Candle * candle = game_state->candle;
 	stock::Stock * default_stock = game_state->default_stock;

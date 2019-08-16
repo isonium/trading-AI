@@ -8,7 +8,7 @@
 #include "Train.h"
 #define MULTITHREADED
 
-constexpr int MAX_INVIDUALS = 500;
+constexpr int MAX_INVIDUALS = 50;
 
 namespace Train {
 
@@ -40,7 +40,7 @@ void Train::reset_players() {
 }
 
 void Train::start() {
-	for (size_t it = 0; it < 1000; ++it) {
+	for (size_t it = 0; it < 50; ++it) {
 		reset_players();
 		auto start = std::chrono::high_resolution_clock::now();
 		run_dataset();
@@ -50,6 +50,9 @@ void Train::start() {
 		cout << "TIME ELAPSED: " << duration.count() << endl;
 		natural_selection();
 	}
+	Topology_ptr best_topology = best_historical_topology.topology;
+	Topology * topology = best_topology.get();
+	Serializer::to_file(topology, "t.json");
 	std::cout << "DONE" << std::endl;
 }
 

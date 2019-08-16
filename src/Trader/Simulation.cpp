@@ -23,7 +23,7 @@ Simulation::~Simulation() {
 	delete state;
 }
 
-void Simulation::reset_players(std::vector<Topology_ptr> & topologies) {
+void Simulation::do_reset_players(std::vector<Topology_ptr> & topologies) {
 	size_t topologies_size = topologies.size();
 	size_t former_players_size = players.size();
 	players.resize(topologies_size);
@@ -47,16 +47,17 @@ void Simulation::update_state(stock::Candle * candle) {
 	state->candle = candle;
 }
 
-void Simulation::run_generation() {
+void Simulation::do_run_generation() {
 	for (stock::Candle * candle : data) {
 		update_state(candle);
 		std::function<void(std::shared_ptr<Trader> &)> lambda =
 				[](std::shared_ptr<Trader> & trader) -> void {trader->decide();};
 		Threading::forEach(players.begin(), players.end(), lambda);
+		//std::for_each(players.begin(), players.end(), lambda);
 	}
 }
 
-void Simulation::get_results(std::vector<double> & results) {
+void Simulation::do_get_results(std::vector<double> & results) {
 	for (Trader_ptr & trader : players) {
 		results.push_back(trader->get_result());
 	}

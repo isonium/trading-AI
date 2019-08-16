@@ -14,14 +14,18 @@ namespace Game {
 
 class Player {
 public:
-	virtual ~Player() {
-	}
+	virtual ~Player();
 
-	virtual void decide() = 0;
+	void decide();
 
-	virtual void reset(NeuralNetwork::Topology_ptr & brain_topology) = 0;
+	void reset(NeuralNetwork::Topology_ptr &);
 
-	virtual double get_result() const = 0;
+	double get_result() const;
+
+private:
+	virtual void do_decide() = 0;
+	virtual void do_reset(NeuralNetwork::Topology_ptr & brain_topology) = 0;
+	virtual double do_get_result() const = 0;
 };
 }
 

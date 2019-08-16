@@ -134,4 +134,13 @@ void Topology::new_mutation(double const & wealth) {
 	Mutation mutation(phenotype, wealth);
 	mutations.push_back(std::move(mutation));
 }
+
+std::string Topology::parse_to_string() const {
+	std::string output = "[";
+	for(std::shared_ptr<Phenotype> phenotype: relationships){
+		output += phenotype->to_string() + ",";
+	}
+	output += "]";
+	return output;
+}
 }

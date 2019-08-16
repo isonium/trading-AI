@@ -8,9 +8,11 @@
 #ifndef NEURALNETWORK_PHENOTYPE_H_
 #define NEURALNETWORK_PHENOTYPE_H_
 
+#include "../Serializer/Serializer.h"
+
 namespace NeuralNetwork {
 
-class Phenotype {
+class Phenotype: public Serializer::Serializable {
 public:
 
 	explicit Phenotype(int input[2], float weight);
@@ -36,6 +38,7 @@ private:
 	double weight;
 	bool disabled = false;
 
+	std::string parse_to_string() const;
 };
 
 }

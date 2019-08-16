@@ -44,7 +44,7 @@ double Phenotype::get_weight() const {
 	return weight;
 }
 
-void Phenotype::disable(){
+void Phenotype::disable() {
 	disabled = true;
 }
 
@@ -53,18 +53,28 @@ bool Phenotype::is_disabled() const {
 }
 
 void Phenotype::resize(int const & former_size, int const & new_size) {
-	if(output[0] == former_size) output[0] = new_size;
+	if (output[0] == former_size)
+		output[0] = new_size;
 }
 
 bool Phenotype::operator==(Phenotype const & comparison) const {
-	if(input[0] == comparison.input[0] && input[1] == comparison.input[1]){
-		if(output[0] == comparison.output[0] && output[1] == comparison.output[1]){
+	if (input[0] == comparison.input[0] && input[1] == comparison.input[1]) {
+		if (output[0] == comparison.output[0]
+				&& output[1] == comparison.output[1]) {
 			return true;
 		}
-		if(output[0] > comparison.output[1])
+		if (output[0] > comparison.output[1])
 			return true;
 	}
 	return false;
 }
 
+std::string Phenotype::parse_to_string() const {
+	std::string str = "{\"input\":[" + std::to_string(input[0]) + ","
+			+ std::to_string(input[1]) + "], \"output\":["
+			+ std::to_string(output[0]) + "," + std::to_string(output[1])
+			+ "],\"weight\":" + std::to_string(weight) + ",\"disabled\":"
+			+ (disabled ? "true" : "false") + "}";
+	return str;
+}
 }

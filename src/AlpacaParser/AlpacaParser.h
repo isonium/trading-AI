@@ -22,13 +22,13 @@ class AlpacaParser: public fetch::Parser {
 public:
 	~AlpacaParser();
 
-	void load_data(std::function<void()> & cb);
 	std::vector<stock::Candle*> & get_data();
 
 private:
 	std::vector<stock::Candle*> data;
 	std::function<void()> callback;
 
+	void do_load_data(std::function<void()> & cb);
 	void parse_data(Response * res);
 };
 
