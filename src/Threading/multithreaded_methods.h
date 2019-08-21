@@ -9,6 +9,7 @@
 #define THREADING_MULTITHREADED_METHODS_H_
 
 #include <thread>
+#include <mutex>
 
 namespace Threading {
 
@@ -19,25 +20,29 @@ static void forEach(Iterable _begin, Iterable _end, Callable & cb,
 	if (!size)
 		return;
 	max_threads--;
+	std::mutex locker;
 	std::vector<std::thread> threads;
-	int batch_size = size / max_threads;
-	int modulo = size % max_threads;
-	Iterable it;
-	for (it = _begin; it != _end - modulo; it += batch_size) {
-		auto lambda = [it, &cb, &batch_size]() -> void {
-			for(int iter = 0; iter != batch_size; ++iter) {
-				cb(*(it + iter));
-			}
-		};
+	int * counter = new int(0);
+	auto lambda = [_begin, _end, counter, &cb, &locker]() -> void {
+		int & _count = *counter;
+		while(true) {
+			locker.lock();
+			int temp = _count;
+			_count++;
+			locker.unlock();
+			if(temp + _begin < _end)
+				cb(*(temp + _begin));
+			else
+				break;
+		}
+	};
+	for (int it = 0; it < max_threads; ++it)
 		threads.push_back(std::thread(lambda));
-	}
-	for (Iterable iter = it; iter != _end; ++iter) {
-		cb(*iter);
-	} // run on main thread
+	lambda(); // run on main thread
 	for (std::thread & thread : threads) {
 		thread.join();
 	}
+	delete counter;
 }
-
 }
 #endif /* THREADING_MULTITHREADED_METHODS_H_ */

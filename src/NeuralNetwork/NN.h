@@ -34,10 +34,10 @@ public:
 private:
 	std::vector<Layer*> layers;
 
-	Neuron * merge_neuron(int & layer, int & index);
+	Neuron * merge_neuron(size_t const layer, size_t const index);
 
-	void add_neuron(int & layer, int & index);
-	void connect_neurons(Neuron & input, Neuron & output, int const & input_layer);
+	void add_neuron(int const layer, int const index);
+	void connect_neurons(Neuron & input, Neuron & output, int const input_layer);
 	void init_topology(Topology_ptr & topology);
 	void set_inputs(const double * inputs_vector);
 };

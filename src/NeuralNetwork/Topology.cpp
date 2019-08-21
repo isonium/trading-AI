@@ -20,12 +20,12 @@ Topology::Topology(Topology const & base) {
 	}
 }
 
-void Topology::set_layers(int const & _layers, int const & default_count) {
+void Topology::set_layers(int const _layers, int const default_count) {
 	layers = _layers;
 	layers_size.resize(layers, default_count);
 }
 
-void Topology::set_layers(int const & _layers) {
+void Topology::set_layers(int const _layers) {
 	set_layers(_layers, 0);
 }
 
@@ -59,19 +59,19 @@ void Topology::disable_phenotypes() {
 		std::shared_ptr<Phenotype> & compare_phenotype = relationships[i];
 		if (compare_phenotype->is_disabled())
 			continue;
-		if (last_phenotype == compare_phenotype) {
+		if (last_phenotype->overrides(*compare_phenotype)) {
 			compare_phenotype->disable();
 		}
 	}
 }
 
-void Topology::resize(int const & new_size) {
+void Topology::resize(int const new_size) {
 	for (std::shared_ptr<Phenotype> & phenotype : relationships)
 		phenotype->resize(layers, new_size);
 	set_layers(new_size, 1);
 }
 
-bool Topology::optimize(const double & wealth) {
+bool Topology::optimize(const double wealth) {
 	if (!mutations.size()) {
 		return false;
 	}
@@ -82,14 +82,14 @@ bool Topology::optimize(const double & wealth) {
 	return true;
 }
 
-void Topology::new_generation(unsigned const & count,
-		std::vector<Topology_ptr> & topologies, double const & wealth) {
+void Topology::new_generation(unsigned const count,
+		std::vector<Topology_ptr> & topologies, double const wealth) {
 	for (unsigned it = 0; it < count; ++it) {
 		topologies.emplace_back(evolve(wealth));
 	}
 }
 
-Topology_ptr Topology::evolve(double const & wealth) {
+Topology_ptr Topology::evolve(double const wealth) {
 	Topology_ptr new_topology = std::make_shared<Topology>(*this);
 	new_topology->mutate();
 	new_mutation(wealth);
@@ -129,7 +129,7 @@ void Topology::mutate() {
 	}
 }
 
-void Topology::new_mutation(double const & wealth) {
+void Topology::new_mutation(double const wealth) {
 	std::shared_ptr<Phenotype> & phenotype = relationships.back();
 	Mutation mutation(phenotype, wealth);
 	mutations.push_back(std::move(mutation));
@@ -137,7 +137,7 @@ void Topology::new_mutation(double const & wealth) {
 
 std::string Topology::parse_to_string() const {
 	std::string output = "[";
-	for(std::shared_ptr<Phenotype> phenotype: relationships){
+	for (std::shared_ptr<Phenotype> phenotype : relationships) {
 		output += phenotype->to_string() + ",";
 	}
 	output += "]";

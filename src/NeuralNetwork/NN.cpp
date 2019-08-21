@@ -30,8 +30,9 @@ void NN::init_topology(Topology_ptr & topology) {
 	std::vector<std::shared_ptr<Phenotype>> relationships =
 			topology->get_relationships();
 	for (std::shared_ptr<Phenotype> & phenotype : relationships) {
-		if (phenotype->is_disabled())
+		if (phenotype->is_disabled()) {
 			continue;
+		}
 		int * input = phenotype->get_input();
 		int * output = phenotype->get_output();
 		float weight = phenotype->get_weight();
@@ -45,28 +46,26 @@ void NN::init_topology(Topology_ptr & topology) {
 	}
 }
 
-Neuron * NN::merge_neuron(int & layer, int & index) {
-	Layer * _layer = layers.at(layer);
-	try {
-		Neuron * neuron = _layer->at(index);
-		if (!neuron)
-			throw std::out_of_range("Not defined");
-		return neuron;
-	} catch (const std::out_of_range& oor) {
-		Neuron * neuron = new Neuron();
-		_layer->resize(index + 1);
-		_layer->at(index) = neuron;
+Neuron * NN::merge_neuron(size_t const layer, size_t const index) {
+	Layer & _layer = *layers[layer];
+	if (index < _layer.size()) {
+		if(!_layer[index]) _layer[index] = new Neuron;
+		return _layer[index];
+	} else {
+		Neuron * neuron = new Neuron;
+		_layer.resize(index + 1);
+		_layer[index] = neuron;
 		return neuron;
 	}
 }
 
-void NN::add_neuron(int & layer, int & index) {
+void NN::add_neuron(int const layer, int const index) {
 	Neuron * neuron = new Neuron();
 	layers[layer]->at(index) = neuron;
 }
 
 void NN::connect_neurons(Neuron & input, Neuron & output,
-		int const & input_layer) {
+		int const input_layer) {
 	input.add_connection(&output);
 }
 
@@ -93,10 +92,10 @@ const double NN::compute(const double * inputs_vector) {
 }
 
 void NN::set_inputs(const double * inputs_array) {
-	Layer * first_layer = layers[0];
-	size_t length = first_layer->size();
+	Layer & first_layer = *layers[0];
+	size_t length = first_layer.size();
 	for (size_t i = 0; i < length; ++i) {
-		Neuron * neuron = first_layer->at(i);
+		Neuron * neuron = first_layer[i];
 		neuron->set_value(inputs_array[i]);
 	}
 }

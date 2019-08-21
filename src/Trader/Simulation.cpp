@@ -51,7 +51,7 @@ void Simulation::do_run_generation() {
 	for (stock::Candle * candle : data) {
 		update_state(candle);
 		std::function<void(std::shared_ptr<Trader> &)> lambda =
-				[](std::shared_ptr<Trader> & trader) -> void {trader->decide();};
+				[](std::shared_ptr<Trader>  &trader) -> void {trader->decide();};
 		Threading::forEach(players.begin(), players.end(), lambda);
 		//std::for_each(players.begin(), players.end(), lambda);
 	}

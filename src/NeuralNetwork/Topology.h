@@ -33,12 +33,12 @@ public:
 	int get_layers() const;
 	std::vector<std::shared_ptr<Phenotype>> & get_relationships();
 
-	void set_layers(int const &, int const &);
-	void set_layers(int const &);
-	void add_relationship(std::shared_ptr<Phenotype> &, bool);
+	void set_layers(int const, int const);
+	void set_layers(int const);
+	void add_relationship(std::shared_ptr<Phenotype> &, const bool);
 
-	bool optimize(const double &);
-	void new_generation(unsigned const &, std::vector<std::shared_ptr<Topology>> &, double const &);
+	bool optimize(const double);
+	void new_generation(unsigned const, std::vector<std::shared_ptr<Topology>> &, double const);
 
 
 private:
@@ -50,10 +50,10 @@ private:
 
 	void disable_phenotypes();
 	const int * decide_mutation();
-	std::shared_ptr<Topology> evolve(double const &);
+	std::shared_ptr<Topology> evolve(double const);
 	void mutate();
-	void new_mutation(double const & wealth);
-	void resize(int const & new_size);
+	void new_mutation(double const wealth);
+	void resize(int const new_size);
 
 	std::string parse_to_string() const;
 };

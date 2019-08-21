@@ -8,11 +8,11 @@
 #include "Train.h"
 #define MULTITHREADED
 
-constexpr int MAX_INVIDUALS = 50;
+constexpr int MAX_INVIDUALS = 500;
 
 namespace Train {
 
-Train::Train(Game::Game * game, int const & initial_topology_count,
+Train::Train(Game::Game * game, int const initial_topology_count,
 		int const & inputs, int const & outputs) {
 	this->game = game;
 	for (int count = 0; count < initial_topology_count; ++count) {

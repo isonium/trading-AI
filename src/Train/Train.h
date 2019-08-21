@@ -33,7 +33,7 @@ using namespace Trading;
 
 class Train {
 public:
-	Train(Game::Game * game, int const & initial_topology_count, int const & inputs,
+	Train(Game::Game * game, int const initial_topology_count, int const & inputs,
 			int const & outputs);
 	~Train();
 
