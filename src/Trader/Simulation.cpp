@@ -15,7 +15,8 @@ Simulation::Simulation(std::vector<stock::Candle *> & _data) {
 		data.push_back(data_point);
 	state = new State { (data[0]), new stock::Stock { "Apple", "AAPL", 0 } };
 	std::cout << "STOCK PERFORMANCE: "
-			<< (data.back()->close - data[0]->open) / data[0]->open << std::endl;
+			<< (data.back()->close - data[0]->open) / data[0]->open
+			<< std::endl;
 }
 
 Simulation::~Simulation() {
@@ -51,9 +52,12 @@ void Simulation::do_run_generation() {
 	for (stock::Candle * candle : data) {
 		update_state(candle);
 		std::function<void(std::shared_ptr<Trader> &)> lambda =
-				[](std::shared_ptr<Trader>  &trader) -> void {trader->decide();};
+				[](std::shared_ptr<Trader> &trader) -> void {trader->decide();};
+#if __MULTITHREADED__
 		Threading::forEach(players.begin(), players.end(), lambda);
-		//std::for_each(players.begin(), players.end(), lambda);
+#else
+		std::for_each(players.begin(), players.end(), lambda);
+#endif
 	}
 }
 

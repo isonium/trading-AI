@@ -18,13 +18,13 @@ class Neuron;
 class Connection{
 
 public:
-	Connection(float weight, Neuron * input, Neuron * output);
+	Connection(double weight, Neuron * input, Neuron * output);
 	~Connection();
 
 	void activate() const;
 
 private:
-	float weight;
+	double weight;
 	Neuron * input;
 	Neuron * output;
 };

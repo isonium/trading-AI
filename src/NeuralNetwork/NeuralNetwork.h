@@ -12,7 +12,7 @@
 
 namespace NeuralNetwork {
 
-double sigmoid(double const & value);
+double sigmoid(double const value);
 } /* namespace NeuralNetwork */
 
 #endif /* NEURALNETWORK_NEURALNETWORK_H_ */

@@ -9,14 +9,15 @@
 
 namespace NeuralNetwork {
 
-Phenotype::Phenotype(int input[2], float weight) {
+Phenotype::Phenotype(point const & input, double const weight) {
 	this->input[0] = input[0];
 	this->input[1] = input[1];
 	this->weight = weight;
 	this->disabled = false;
 }
 
-Phenotype::Phenotype(int input[2], int output[2], float weight) {
+Phenotype::Phenotype(point const & input, point const & output,
+		double const weight) {
 	this->input[0] = input[0];
 	this->input[1] = input[1];
 	this->output[0] = output[0];
@@ -25,7 +26,7 @@ Phenotype::Phenotype(int input[2], int output[2], float weight) {
 	this->disabled = false;
 }
 
-void Phenotype::set_weight(float const new_weight) {
+void Phenotype::set_weight(double const new_weight) {
 	weight = new_weight;
 }
 
@@ -34,16 +35,20 @@ void Phenotype::set_output(int const first, int const second) {
 	output[1] = second;
 }
 
-int * Phenotype::get_input() {
+Phenotype::point const & Phenotype::get_input() {
 	return input;
 }
 
-int * Phenotype::get_output() {
+Phenotype::point const & Phenotype::get_output() {
 	return output;
 }
 
 double Phenotype::get_weight() const {
 	return weight;
+}
+
+void Phenotype::decrement_output(){
+	output[0]--;
 }
 
 void Phenotype::disable() {
@@ -55,19 +60,14 @@ bool Phenotype::is_disabled() const {
 }
 
 void Phenotype::resize(int const former_size, int const new_size) {
-	if (output[0] == former_size)
+	if (output[0] == former_size) {
 		output[0] = new_size;
+	}
 }
 
-bool Phenotype::overrides(Phenotype const & comparison) const {
-	bool input_compare = input[0] == comparison.input[0]
-			&& input[1] == comparison.input[1];
-	bool output_compare = output[0] == comparison.output[0]
+bool Phenotype::same_output(Phenotype const & comparison) const {
+	return output[0] == comparison.output[0]
 			&& output[1] == comparison.output[1];
-	if (input_compare && output_compare) {
-		return true;
-	}
-	return false;
 }
 
 std::string Phenotype::parse_to_string() const {

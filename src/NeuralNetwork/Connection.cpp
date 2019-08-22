@@ -12,7 +12,7 @@
 
 namespace NeuralNetwork {
 
-Connection::Connection(float weight, Neuron * input, Neuron * output){
+Connection::Connection(double weight, Neuron * input, Neuron * output){
 	this->weight = weight;
 	this->input = input;
 	this->output = output;

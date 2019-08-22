@@ -33,8 +33,8 @@ using namespace Trading;
 
 class Train {
 public:
-	Train(Game::Game * game, int const initial_topology_count, int const & inputs,
-			int const & outputs);
+	Train(Game::Game * game, int const initial_topology_count, int const inputs,
+			int const outputs);
 	~Train();
 
 	void start();
@@ -47,6 +47,8 @@ private:
 	void reset_players();
 	void run_dataset();
 	void natural_selection();
+	void reset_topologies(TraderResult * results, int topologies_size);
+	void update_best(TraderResult & most_successful);
 };
 }
 

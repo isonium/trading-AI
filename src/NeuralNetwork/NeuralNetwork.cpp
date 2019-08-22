@@ -9,7 +9,7 @@
 
 namespace NeuralNetwork {
 
-double sigmoid(double const & value) {
+double sigmoid(double const value) {
 	return 1/(1 + std::exp(-value));
 }
 

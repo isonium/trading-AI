@@ -29,13 +29,15 @@ class Mutation {
 	 * Once it found it, it divides the range in two until finding the right value
 	 * */
 public:
-	explicit Mutation(std::shared_ptr<Phenotype> &, double const &);
+	explicit Mutation(std::shared_ptr<Phenotype> &, double const);
 	~Mutation() {
 	}
 	;
 
-	unsigned const & get_iterations() const;
-	void mutate(const double &);
+	unsigned get_iterations() const;
+	void mutate(const double);
+
+	unsigned get_unfruitful() const;
 
 private:
 	std::shared_ptr<Phenotype> phenotype;
@@ -44,6 +46,8 @@ private:
 	int direction = 0;
 	double last_result = 0;
 	unsigned iterations = 0;
+	unsigned unfruitful = 0;
+	int gradient = 10;
 };
 
 } /* namespace NeuralNetwork */

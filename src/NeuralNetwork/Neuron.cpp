@@ -19,7 +19,7 @@ Neuron::~Neuron() {
 	}
 }
 
-Connection * Neuron::add_connection(Neuron * neuron, float weight) {
+Connection * Neuron::add_connection(Neuron * neuron, double const weight) {
 	Connection * connection = new Connection(weight, this, neuron);
 	connections.push_back(connection);
 	return connection;

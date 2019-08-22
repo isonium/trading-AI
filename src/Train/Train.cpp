@@ -8,18 +8,18 @@
 #include "Train.h"
 #define MULTITHREADED
 
-constexpr int MAX_INVIDUALS = 500;
+constexpr int MAX_INVIDUALS = 50;
 
 namespace Train {
 
 Train::Train(Game::Game * game, int const initial_topology_count,
-		int const & inputs, int const & outputs) {
+		int const inputs, int const outputs) {
 	this->game = game;
 	for (int count = 0; count < initial_topology_count; ++count) {
 		Topology_ptr initial_topology = std::make_shared<Topology>();
 		initial_topology->set_layers(2);
 		for (int i = 0; i < inputs; ++i) {
-			int input[2] = { 0, i };
+			Phenotype::point input = { 0, i };
 			float weight = (std::rand() % 100) / 100.0;
 			std::shared_ptr<Phenotype> phenotype = std::make_shared<Phenotype>(
 					input, weight);
@@ -41,13 +41,16 @@ void Train::reset_players() {
 
 void Train::start() {
 	for (size_t it = 0; it < 50; ++it) {
+		std::cout << 0 << std::endl;
 		reset_players();
 		auto start = std::chrono::high_resolution_clock::now();
+		std::cout << 1 << std::endl;
 		run_dataset();
 		auto stop = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
 				stop - start);
 		cout << "TIME ELAPSED: " << duration.count() << endl;
+		std::cout << 2 << std::endl;
 		natural_selection();
 	}
 	Topology_ptr best_topology = best_historical_topology.topology;
@@ -70,9 +73,12 @@ void Train::natural_selection() {
 		results[it] = TraderResult { outcomes[it], topology };
 	}
 	topologies.clear();
+	reset_topologies(results, topologies_size);
+	update_best(results[topologies_size - 1]);
+}
 
+void Train::reset_topologies(TraderResult * results, int topologies_size) {
 	std::sort(results, results + topologies_size);
-
 	int quarter =
 			topologies_size > MAX_INVIDUALS ?
 					MAX_INVIDUALS / 4 : topologies_size / 4;
@@ -92,7 +98,9 @@ void Train::natural_selection() {
 			topology->new_generation(new_individuals, topologies, wealth);
 		}
 	}
-	TraderResult most_successful = results[topologies_size - 1];
+}
+
+void Train::update_best(TraderResult & most_successful) {
 	if (most_successful > best_historical_topology) {
 		best_historical_topology.wealth = most_successful.wealth;
 		best_historical_topology.topology = std::make_shared<Topology>(

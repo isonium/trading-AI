@@ -23,7 +23,7 @@ public:
 	Neuron();
 	virtual ~Neuron();
 
-	Connection * add_connection(Neuron * neuron, float weight);
+	Connection * add_connection(Neuron * neuron, double const weight);
 	Connection * add_connection(Neuron*);
 
 	void increment_value(const double inc_value);

@@ -14,9 +14,8 @@
 #include <memory>
 #include <stdlib.h>
 #include <iostream>
+#include <unordered_map>
 
-
-#include "Phenotype.h"
 #include "Mutation.h"
 #include "Neuron.h" // Layer
 
@@ -26,34 +25,41 @@ namespace NeuralNetwork {
 
 class Topology: public Serializer::Serializable {
 public:
-	Topology() {}
-	explicit Topology(Topology const &);// Private copy constructor
-	~Topology() {};
+	using relationships_map = std::unordered_map<Phenotype::point, std::vector<std::shared_ptr<Phenotype>>>;
+	Topology() {
+	}
+	explicit Topology(Topology const &); // Private copy constructor
+	~Topology() {
+	}
+	;
 
 	int get_layers() const;
-	std::vector<std::shared_ptr<Phenotype>> & get_relationships();
+	relationships_map & get_relationships();
 
-	void set_layers(int const, int const);
 	void set_layers(int const);
-	void add_relationship(std::shared_ptr<Phenotype> &, const bool);
+	void add_relationship(std::shared_ptr<Phenotype> &, const bool init = false);
 
 	bool optimize(const double);
-	void new_generation(unsigned const, std::vector<std::shared_ptr<Topology>> &, double const);
-
+	void new_generation(unsigned const,
+			std::vector<std::shared_ptr<Topology>> &, double const);
 
 private:
 
 	int layers = 0;
 	std::vector<int> layers_size = { };
-	std::vector<std::shared_ptr<Phenotype>> relationships = {};
+	relationships_map relationships = { };
 	std::vector<Mutation> mutations = { };
 
-	void disable_phenotypes();
+	void add_to_relationships_map(Phenotype::point const & input, std::shared_ptr<Phenotype> & phenotype);
+	void disable_phenotypes(Phenotype::point const & input, Phenotype::point const & output);
 	const int * decide_mutation();
 	std::shared_ptr<Topology> evolve(double const);
-	void mutate();
-	void new_mutation(double const wealth);
+	std::shared_ptr<Phenotype> mutate();
+	void new_mutation(std::shared_ptr<Phenotype> &, double const wealth);
 	void resize(int const new_size);
+
+	std::shared_ptr<Phenotype> new_phenotype(Phenotype::point const & input,
+			Phenotype::point const & output);
 
 	std::string parse_to_string() const;
 };

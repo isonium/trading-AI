@@ -8,39 +8,54 @@
 #ifndef NEURALNETWORK_PHENOTYPE_H_
 #define NEURALNETWORK_PHENOTYPE_H_
 
+#include <array>
+#include <boost/functional/hash.hpp>
 #include "../Serializer/Serializer.h"
 
 namespace NeuralNetwork {
 
 class Phenotype: public Serializer::Serializable {
 public:
+	using point = std::array<int, 2>;
 
-	explicit Phenotype(int input[2], float weight);
-	explicit Phenotype(int input[2]): Phenotype(input, .1) {}
-	explicit Phenotype(int input[2], int output[2], float weight);
+	explicit Phenotype(point const & input, double const weight);
+	explicit Phenotype(point const & input): Phenotype(input, .1) {}
+	explicit Phenotype(point const & input, point const & output, double const weight);
 
-	void set_weight(float const gradient);
-	void set_output(int first, int second);
-	int * get_input();
-	int * get_output();
+	void set_weight(double const gradient);
+	void set_output(int const first, int const second);
+	point const & get_input();
+	point const & get_output();
 	double get_weight() const;
+	void decrement_output();
 
 	void resize(int const former_size, int const new_size);
 
 	void disable();
 	bool is_disabled() const;
 
-	bool overrides(Phenotype const &) const;
+	bool same_output(Phenotype const &) const;
 
 private:
-	int input[2] = {};
-	int output[2] = {};
+	point input;
+	point output;
 	double weight;
 	bool disabled = false;
 
 	std::string parse_to_string() const;
 };
 
+}
+
+namespace std {
+template<> struct hash<NeuralNetwork::Phenotype::point> {
+	size_t operator()(const NeuralNetwork::Phenotype::point & p) const {
+		std::size_t seed = 0;
+		boost::hash_combine(seed, p[0]);
+		boost::hash_combine(seed, p[1]);
+		return seed;
+	}
+};
 }
 
 

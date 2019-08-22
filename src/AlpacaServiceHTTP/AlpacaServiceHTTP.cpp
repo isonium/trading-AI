@@ -8,8 +8,8 @@
 #include "AlpacaServiceHTTP.h"
 
 void Response::print_headers() const {
-	for (auto it = headers.begin(); it != headers.end(); ++it) {
-		std::cout << it->first << ": " << it->second << std::endl;
+	for (auto & it: headers) {
+		std::cout << it.first << ": " << it.second << std::endl;
 	}
 }
 
