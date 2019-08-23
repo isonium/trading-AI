@@ -50,12 +50,12 @@ private:
 	relationships_map relationships = { };
 	std::vector<Mutation> mutations = { };
 
-	void add_to_relationships_map(Phenotype::point const & input, std::shared_ptr<Phenotype> & phenotype);
+	void add_to_relationships_map(std::shared_ptr<Phenotype> & phenotype);
 	void disable_phenotypes(Phenotype::point const & input, Phenotype::point const & output);
 	const int * decide_mutation();
 	std::shared_ptr<Topology> evolve(double const);
 	std::shared_ptr<Phenotype> mutate();
-	void new_mutation(std::shared_ptr<Phenotype> &, double const wealth);
+	void new_mutation(std::shared_ptr<Phenotype>, double const wealth);
 	void resize(int const new_size);
 
 	std::shared_ptr<Phenotype> new_phenotype(Phenotype::point const & input,

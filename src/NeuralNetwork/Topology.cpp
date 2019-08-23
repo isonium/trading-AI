@@ -20,7 +20,7 @@ Topology::Topology(Topology const & base) {
 		for (std::shared_ptr<Phenotype> phenotype : it.second) {
 			std::shared_ptr<Phenotype> copy = std::make_shared<Phenotype>(
 					*phenotype);
-			add_relationship(copy);
+			add_to_relationships_map(copy);
 		}
 	}
 }
@@ -55,16 +55,17 @@ void Topology::add_relationship(std::shared_ptr<Phenotype> & phenotype,
 	}
 	if (!init)
 		disable_phenotypes(input, output);
-	add_to_relationships_map(input, phenotype);
+	add_to_relationships_map(phenotype);
 }
 
-void Topology::add_to_relationships_map(Phenotype::point const & input,
+void Topology::add_to_relationships_map(
 		std::shared_ptr<Phenotype> & phenotype) {
+	Phenotype::point input = phenotype->get_input();
 	if (relationships.find(input) != relationships.end()) {
 		relationships[input].push_back(phenotype);
 	} else {
-		std::vector<std::shared_ptr<Phenotype>> && new_vec { phenotype };
-		relationships[input] = new_vec;
+		relationships[input] = std::vector<std::shared_ptr<Phenotype>> {
+				phenotype };
 	}
 }
 
@@ -81,7 +82,7 @@ void Topology::disable_phenotypes(Phenotype::point const & input,
 		if (compared_output == output) {
 			it->disable();
 		} else {
-			if (compared_output[0] < output[0])
+			if (compared_output[0] <= output[0])
 				disable_phenotypes(compared_output, output);
 		}
 	}
@@ -101,10 +102,12 @@ bool Topology::optimize(const double wealth) {
 		return false;
 	}
 	Mutation & last_mutation = mutations.back();
-	if (last_mutation.get_iterations() >= MAX_ITERATIONS)
+	if (last_mutation.get_iterations() >= MAX_ITERATIONS) {
 		return false;
-	if (last_mutation.get_unfruitful() >= MAX_UNFRUITFUL)
+	}
+	if (last_mutation.get_unfruitful() >= MAX_UNFRUITFUL) {
 		return false;
+	}
 	last_mutation.mutate(wealth);
 	return true;
 }
@@ -129,12 +132,6 @@ std::shared_ptr<Phenotype> Topology::mutate() {
 	int input_index = layers >= 3 ? rand() % (layers - 2) : 0;
 	int input_position = rand() % (layers_size[input_index]);
 	int output_index = rand() % (layers - input_index) + input_index + 1;
-#if __DEBUG__
-	if (output_index > layers || output_index == input_index) {
-		std::cerr << "err" << std::endl;
-		throw "err";
-	}
-#endif
 	int output_position = 0;
 	if (output_index < layers - 1) {
 		output_position = rand() % (layers_size[output_index] + 1);
@@ -150,10 +147,10 @@ std::shared_ptr<Phenotype> Topology::mutate() {
 	Phenotype::point output = { output_index, output_position };
 	std::shared_ptr<Phenotype> last_phenotype = new_phenotype(input, output);
 
-
 	if (!new_output)
 		return last_phenotype;
 	int _back = layers_size.back();
+	output = last_phenotype->get_output();
 	for (int i = 0; i < _back; ++i) {
 		Phenotype::point output_output = { layers - 1, i };
 		new_phenotype(output, output_output);
@@ -170,9 +167,10 @@ std::shared_ptr<Phenotype> Topology::new_phenotype(
 	return phenotype;
 }
 
-void Topology::new_mutation(std::shared_ptr<Phenotype> & last_phenotype, double const wealth) {
+void Topology::new_mutation(std::shared_ptr<Phenotype> last_phenotype,
+		double const wealth) {
 	Mutation mutation(last_phenotype, wealth);
-	mutations.push_back(std::move(mutation));
+	mutations.push_back(mutation);
 }
 
 std::string Topology::parse_to_string() const {

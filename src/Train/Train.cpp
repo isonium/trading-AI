@@ -6,9 +6,8 @@
  */
 
 #include "Train.h"
-#define MULTITHREADED
 
-constexpr int MAX_INVIDUALS = 50;
+constexpr int MAX_INDIVIDUALS = 200;
 
 namespace Train {
 
@@ -40,23 +39,21 @@ void Train::reset_players() {
 }
 
 void Train::start() {
-	for (size_t it = 0; it < 50; ++it) {
-		std::cout << 0 << std::endl;
+	for (size_t it = 0; it < 500; ++it) {
 		reset_players();
 		auto start = std::chrono::high_resolution_clock::now();
-		std::cout << 1 << std::endl;
 		run_dataset();
 		auto stop = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
 				stop - start);
 		cout << "TIME ELAPSED: " << duration.count() << endl;
-		std::cout << 2 << std::endl;
 		natural_selection();
 	}
 	Topology_ptr best_topology = best_historical_topology.topology;
 	Topology * topology = best_topology.get();
 	Serializer::to_file(topology, "t.json");
 	std::cout << "DONE" << std::endl;
+	std::cout << "RICHEST OVERALL: " << best_historical_topology.wealth << std::endl;
 }
 
 void Train::run_dataset() {
@@ -80,8 +77,8 @@ void Train::natural_selection() {
 void Train::reset_topologies(TraderResult * results, int topologies_size) {
 	std::sort(results, results + topologies_size);
 	int quarter =
-			topologies_size > MAX_INVIDUALS ?
-					MAX_INVIDUALS / 4 : topologies_size / 4;
+			topologies_size > MAX_INDIVIDUALS ?
+					MAX_INDIVIDUALS / 4 : topologies_size / 4;
 	int new_individuals = -1;
 	for (int it = 0; it < topologies_size; ++it) {
 		const double & wealth = results[it].wealth;
@@ -90,7 +87,7 @@ void Train::reset_topologies(TraderResult * results, int topologies_size) {
 			topologies.push_back(topology);
 		} else if (it >= quarter) {
 			if (new_individuals == -1) {
-				new_individuals = (MAX_INVIDUALS - topologies.size())
+				new_individuals = (MAX_INDIVIDUALS - static_cast<int>(topologies.size()))
 						/ (topologies_size - it);
 				if (new_individuals <= 0)
 					new_individuals = 1;
