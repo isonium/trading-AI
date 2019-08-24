@@ -12,12 +12,11 @@
 #include <exception>
 #include <memory>
 
-#include "../Game/Player.h"
 #include "State.h"
-#include "../Stock/Stock.h"
-#include "../Stock/Portfolio.h"
 #include "../NeuralNetwork/NN.h"
 #include "../NeuralNetwork/Topology.h"
+#include "../Stock/Stock.h"
+#include "../Stock/Portfolio.h"
 
 using namespace NeuralNetwork;
 
@@ -28,9 +27,9 @@ struct NotEnoughFunds: public std::exception {
 	}
 };
 
-class Trader: public Game::Player {
+class Trader {
 public:
-	Trader(long double const & bank, Topology_ptr & brain_topology, State * game_state);
+	Trader(long double const, Topology_ptr &, State *);
 	Trader(Trader & trader);
 	virtual ~Trader();
 
@@ -38,7 +37,7 @@ public:
 
 	double get_bank() const;
 
-private:
+protected:
 	State * game_state;
 	double bank;
 	double assets_value;
@@ -46,18 +45,13 @@ private:
 	stock::Portfolio * portfolio;
 	NeuralNetwork::NN * brain;
 
-	void rebalance(const double &, stock::Stock &default_stock);
-	void buy_stock(stock::Stock &_stock, const long & quantity);
-	void sell_stock(stock::Stock * const stockPtr, const long & quantity);
-	void update_assets();
-	void copy(Trader & trader);
+	void copy(Trader &);
 
-	double do_get_result() const;
-	void do_decide();
-	void do_reset(Topology_ptr & brain_topology);
+	virtual void buy_stock(stock::Stock &, const long) = 0;
+	virtual void sell_stock(stock::Stock * const, const long) = 0;
 };
 
-using Trader_ptr = std::shared_ptr<Trader>;
+using Trader_ptr = std::unique_ptr<Trader>;
 }
 
 #endif /* TRADER_H_ */

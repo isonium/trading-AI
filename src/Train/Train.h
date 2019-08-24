@@ -43,7 +43,10 @@ private:
 	Game::Game * game;
 	std::vector<Topology_ptr> topologies;
 	TraderResult best_historical_topology;
+	int inputs_count;
+	int outputs_count;
 
+	void random_new_topologies(int const initial_topology_count, int const inputs, int const outputs);
 	void reset_players();
 	void run_dataset();
 	void natural_selection();

@@ -7,21 +7,31 @@
 
 #include "Train.h"
 
-constexpr int MAX_INDIVIDUALS = 200;
+constexpr int MAX_INDIVIDUALS = 500;
 
 namespace Train {
 
 Train::Train(Game::Game * game, int const initial_topology_count,
-		int const inputs, int const outputs) {
+		int const inputs, int const outputs) :
+		best_historical_topology { 0, Topology_ptr { NULL } } {
 	this->game = game;
+	this->inputs_count = inputs;
+	this->outputs_count = outputs;
+	random_new_topologies(initial_topology_count, inputs, outputs);
+}
+
+Train::~Train() {
+}
+
+void Train::random_new_topologies(int const initial_topology_count,
+		int const inputs, int const outputs) {
 	for (int count = 0; count < initial_topology_count; ++count) {
 		Topology_ptr initial_topology = std::make_shared<Topology>();
 		initial_topology->set_layers(2);
 		for (int i = 0; i < inputs; ++i) {
 			Phenotype::point input = { 0, i };
 			float weight = (std::rand() % 100) / 100.0;
-			std::shared_ptr<Phenotype> phenotype = std::make_shared<Phenotype>(
-					input, weight);
+			Phenotype * phenotype = new Phenotype(input, weight);
 			for (int j = 0; j < outputs; ++j) {
 				phenotype->set_output(1, j);
 				initial_topology->add_relationship(phenotype, true);
@@ -29,9 +39,6 @@ Train::Train(Game::Game * game, int const initial_topology_count,
 		}
 		topologies.emplace_back(std::move(initial_topology));
 	}
-}
-
-Train::~Train() {
 }
 
 void Train::reset_players() {
@@ -53,7 +60,8 @@ void Train::start() {
 	Topology * topology = best_topology.get();
 	Serializer::to_file(topology, "t.json");
 	std::cout << "DONE" << std::endl;
-	std::cout << "RICHEST OVERALL: " << best_historical_topology.wealth << std::endl;
+	std::cout << "RICHEST OVERALL: " << best_historical_topology.wealth
+			<< std::endl;
 }
 
 void Train::run_dataset() {
@@ -79,22 +87,24 @@ void Train::reset_topologies(TraderResult * results, int topologies_size) {
 	int quarter =
 			topologies_size > MAX_INDIVIDUALS ?
 					MAX_INDIVIDUALS / 4 : topologies_size / 4;
-	int new_individuals = -1;
 	for (int it = 0; it < topologies_size; ++it) {
 		const double & wealth = results[it].wealth;
 		Topology_ptr & topology = results[it].topology;
 		if (topology->optimize(wealth)) {
 			topologies.push_back(topology);
 		} else if (it >= quarter) {
-			if (new_individuals == -1) {
-				new_individuals = (MAX_INDIVIDUALS - static_cast<int>(topologies.size()))
-						/ (topologies_size - it);
-				if (new_individuals <= 0)
-					new_individuals = 1;
-			}
+			int new_individuals = (MAX_INDIVIDUALS
+					- static_cast<int>(topologies.size()))
+					/ (topologies_size - it);
+			if (new_individuals <= 0)
+				new_individuals = 1;
 			topology->new_generation(new_individuals, topologies, wealth);
 		}
 	}
+	int end_size = topologies.size();
+	if (end_size < MAX_INDIVIDUALS)
+		random_new_topologies(MAX_INDIVIDUALS - end_size, inputs_count,
+				outputs_count);
 }
 
 void Train::update_best(TraderResult & most_successful) {

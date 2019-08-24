@@ -29,7 +29,7 @@ void NN::init_topology(Topology_ptr & topology) {
 	}
 	Topology::relationships_map & relationships = topology->get_relationships();
 	for (auto & it : relationships) {
-		for (std::shared_ptr<Phenotype> & phenotype : it.second) {
+		for (Phenotype * phenotype : it.second) {
 			if (phenotype->is_disabled()) {
 				continue;
 			}

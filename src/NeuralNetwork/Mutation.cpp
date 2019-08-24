@@ -10,7 +10,7 @@
 
 namespace NeuralNetwork {
 
-Mutation::Mutation(std::shared_ptr<Phenotype> & _phenotype,
+Mutation::Mutation(Phenotype * _phenotype,
 		double const _last_result) {
 	phenotype = _phenotype;
 	last_result = _last_result;

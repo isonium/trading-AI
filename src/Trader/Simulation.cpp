@@ -31,9 +31,8 @@ void Simulation::do_reset_players(std::vector<Topology_ptr> & topologies) {
 	if (topologies_size > former_players_size) {
 		for (size_t it = former_players_size; it < topologies_size; ++it) {
 			std::shared_ptr<Topology> topology = topologies[it];
-			std::shared_ptr<Trader> trader = std::make_shared<Trader>(k100,
-					topology, state);
-			players[it] = trader;
+			players[it] = std::make_unique<SimulationTrader>(k100, topology,
+					state);
 		}
 	} else {
 		former_players_size = topologies_size;
@@ -51,8 +50,8 @@ void Simulation::update_state(stock::Candle * candle) {
 void Simulation::do_run_generation() {
 	for (stock::Candle * candle : data) {
 		update_state(candle);
-		std::function<void(std::shared_ptr<Trader> &)> lambda =
-				[](std::shared_ptr<Trader> &trader) -> void {trader->decide();};
+		std::function<void(SimulationTrader_ptr &)> lambda =
+				[](SimulationTrader_ptr &trader) -> void {trader->decide();};
 #if __MULTITHREADED__
 		Threading::forEach(players.begin(), players.end(), lambda);
 #else
@@ -62,7 +61,7 @@ void Simulation::do_run_generation() {
 }
 
 void Simulation::do_get_results(std::vector<double> & results) {
-	for (Trader_ptr & trader : players) {
+	for (SimulationTrader_ptr & trader : players) {
 		results.push_back(trader->get_result());
 	}
 }

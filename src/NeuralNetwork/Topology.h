@@ -25,40 +25,42 @@ namespace NeuralNetwork {
 
 class Topology: public Serializer::Serializable {
 public:
-	using relationships_map = std::unordered_map<Phenotype::point, std::vector<std::shared_ptr<Phenotype>>>;
+	using relationships_map = std::unordered_map<Phenotype::point, std::vector<Phenotype *>>;
 	Topology() {
 	}
 	explicit Topology(Topology const &); // Private copy constructor
-	~Topology() {
-	}
-	;
+	~Topology();
+	Topology & operator=(Topology const &);
 
 	int get_layers() const;
 	relationships_map & get_relationships();
 
 	void set_layers(int const);
-	void add_relationship(std::shared_ptr<Phenotype> &, const bool init = false);
+	void add_relationship(Phenotype *, const bool init = false);
 
 	bool optimize(const double);
 	void new_generation(unsigned const,
 			std::vector<std::shared_ptr<Topology>> &, double const);
 
 private:
+	using point_pair = std::array<Phenotype::point, 2>;
 
 	int layers = 0;
 	std::vector<int> layers_size = { };
 	relationships_map relationships = { };
 	std::vector<Mutation> mutations = { };
 
-	void add_to_relationships_map(std::shared_ptr<Phenotype> & phenotype);
-	void disable_phenotypes(Phenotype::point const & input, Phenotype::point const & output);
-	const int * decide_mutation();
+	void copy(Topology const & base);
+	void add_to_relationships_map(Phenotype * phenotype);
+	void disable_phenotypes(Phenotype::point const &, Phenotype::point const &);
+	bool const path_overrides(Phenotype::point const &,
+			Phenotype::point const &);
 	std::shared_ptr<Topology> evolve(double const);
-	std::shared_ptr<Phenotype> mutate();
-	void new_mutation(std::shared_ptr<Phenotype>, double const wealth);
+	Phenotype * mutate();
+	void new_mutation(Phenotype *, double const wealth);
 	void resize(int const new_size);
 
-	std::shared_ptr<Phenotype> new_phenotype(Phenotype::point const & input,
+	Phenotype * new_phenotype(Phenotype::point const & input,
 			Phenotype::point const & output);
 
 	std::string parse_to_string() const;

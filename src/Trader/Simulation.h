@@ -10,7 +10,7 @@
 
 #include "../Game/Game.h"
 #include "../Game/Player.h"
-#include "Trader.h"
+#include "SimulationTrader.h"
 #include "State.h"
 #include "../NeuralNetwork/Topology.h"
 #include "../Threading/multithreaded_methods.h"
@@ -26,7 +26,7 @@ public:
 
 private:
 	State * state;
-	std::vector<Trader_ptr> players;
+	std::vector<SimulationTrader_ptr> players;
 	std::vector<stock::Candle *> data;
 
 	void update_state(stock::Candle * candle);

@@ -29,7 +29,7 @@ class Mutation {
 	 * Once it found it, it divides the range in two until finding the right value
 	 * */
 public:
-	explicit Mutation(std::shared_ptr<Phenotype> &, double const);
+	explicit Mutation(Phenotype *, double const);
 	~Mutation() {
 	}
 	;
@@ -40,7 +40,7 @@ public:
 	unsigned get_unfruitful() const;
 
 private:
-	std::shared_ptr<Phenotype> phenotype;
+	Phenotype * phenotype;
 	double interval[2] = { -INFINITY, INFINITY };
 	bool interval_found = false;
 	int direction = 0;

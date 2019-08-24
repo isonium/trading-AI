@@ -7,19 +7,45 @@
 
 #include "Topology.h"
 
-constexpr unsigned MAX_ITERATIONS = 3;
-constexpr unsigned MAX_UNFRUITFUL = 5;
+constexpr unsigned MAX_ITERATIONS = 5;
+constexpr unsigned MAX_UNFRUITFUL = 3;
 
 namespace NeuralNetwork {
 
 Topology::Topology(Topology const & base) {
+	copy(base);
+}
+
+Topology::~Topology() {
+	for (auto & it : relationships) {
+		for (Phenotype * phenotype : it.second) {
+			delete phenotype;
+		}
+	}
+}
+
+Topology & Topology::operator=(Topology const & base) {
+	if (this != &base) {
+		copy(base);
+	}
+
+	return *this;
+}
+
+void Topology::copy(Topology const & base) {
 	layers = base.layers;
 	layers_size = base.layers_size;
 	mutations = base.mutations;
+	for (auto & it : relationships) {
+		for (Phenotype * phenotype : it.second) {
+			delete phenotype;
+		}
+	}
+	relationships.clear();
+
 	for (auto & it : base.relationships) {
-		for (std::shared_ptr<Phenotype> phenotype : it.second) {
-			std::shared_ptr<Phenotype> copy = std::make_shared<Phenotype>(
-					*phenotype);
+		for (Phenotype * phenotype : it.second) {
+			Phenotype * copy = new Phenotype(*phenotype);
 			add_to_relationships_map(copy);
 		}
 	}
@@ -40,8 +66,7 @@ Topology::relationships_map & Topology::get_relationships() {
 	return relationships;
 }
 
-void Topology::add_relationship(std::shared_ptr<Phenotype> & phenotype,
-		const bool init) {
+void Topology::add_relationship(Phenotype * phenotype, const bool init) {
 	Phenotype::point input = phenotype->get_input();
 	Phenotype::point output = phenotype->get_output();
 	if (input[1] + 1 > layers_size[input[0]]) {
@@ -53,19 +78,15 @@ void Topology::add_relationship(std::shared_ptr<Phenotype> & phenotype,
 	} else if (output[1] + 1 > layers_size[output[0]]) {
 		layers_size[output[0]] = output[1] + 1;
 	}
-	if (!init)
-		disable_phenotypes(input, output);
 	add_to_relationships_map(phenotype);
 }
 
-void Topology::add_to_relationships_map(
-		std::shared_ptr<Phenotype> & phenotype) {
+void Topology::add_to_relationships_map(Phenotype * phenotype) {
 	Phenotype::point input = phenotype->get_input();
 	if (relationships.find(input) != relationships.end()) {
 		relationships[input].push_back(phenotype);
 	} else {
-		relationships[input] = std::vector<std::shared_ptr<Phenotype>> {
-				phenotype };
+		relationships[input] = std::vector<Phenotype *> { phenotype };
 	}
 }
 
@@ -73,24 +94,43 @@ void Topology::disable_phenotypes(Phenotype::point const & input,
 		Phenotype::point const & output) {
 	if (relationships.find(input) == relationships.end())
 		return;
-	auto & base_vector = relationships.at(input);
-	for (std::shared_ptr<Phenotype> & it : base_vector) {
+	auto & base_vector = relationships[input];
+	Phenotype * & back = base_vector.back();
+	for (Phenotype * & it : base_vector) {
+		if (it == back || it->is_disabled()) {
+			continue;
+		}
+		Phenotype::point compared_output = it->get_output();
+		if (output == compared_output || path_overrides(compared_output, output)
+				|| path_overrides(output, compared_output)) {
+			it->disable();
+		}
+	}
+}
+
+bool const Topology::path_overrides(Phenotype::point const & input,
+		Phenotype::point const & output) {
+	if (relationships.find(input) == relationships.end())
+		return false;
+	auto & base_vector = relationships[input];
+	for (Phenotype * & it : base_vector) {
 		if (it->is_disabled()) {
 			continue;
 		}
 		Phenotype::point compared_output = it->get_output();
 		if (compared_output == output) {
-			it->disable();
-		} else {
-			if (compared_output[0] <= output[0])
-				disable_phenotypes(compared_output, output);
+			return true;
+		} else if (compared_output[0] <= output[0]) {
+			if (path_overrides(compared_output, output))
+				return true;
 		}
 	}
+	return false;
 }
 
 void Topology::resize(int const new_max) {
 	for (auto & it : relationships) {
-		for (std::shared_ptr<Phenotype> phenotype : it.second) {
+		for (Phenotype * phenotype : it.second) {
 			phenotype->resize(new_max - 1, new_max);
 		}
 	}
@@ -121,12 +161,12 @@ void Topology::new_generation(unsigned const count,
 
 Topology_ptr Topology::evolve(double const wealth) {
 	Topology_ptr new_topology = std::make_shared<Topology>(*this);
-	std::shared_ptr<Phenotype> last_phenotype = new_topology->mutate();
+	Phenotype * last_phenotype = new_topology->mutate();
 	new_topology->new_mutation(last_phenotype, wealth);
 	return new_topology;
 }
 
-std::shared_ptr<Phenotype> Topology::mutate() {
+Phenotype * Topology::mutate() {
 // Input must already exist and output may or may not exist
 	bool new_output = false;
 	int input_index = layers >= 3 ? rand() % (layers - 2) : 0;
@@ -145,30 +185,29 @@ std::shared_ptr<Phenotype> Topology::mutate() {
 	}
 	Phenotype::point input = { input_index, input_position };
 	Phenotype::point output = { output_index, output_position };
-	std::shared_ptr<Phenotype> last_phenotype = new_phenotype(input, output);
+	Phenotype * last_phenotype = new_phenotype(input, output);
 
-	if (!new_output)
-		return last_phenotype;
-	int _back = layers_size.back();
-	output = last_phenotype->get_output();
-	for (int i = 0; i < _back; ++i) {
-		Phenotype::point output_output = { layers - 1, i };
-		new_phenotype(output, output_output);
+	if (!new_output) {
+		int _back = layers_size.back();
+		output = last_phenotype->get_output();
+		for (int i = 0; i < _back; ++i) {
+			Phenotype::point output_output = { layers - 1, i };
+			new_phenotype(output, output_output);
+		}
 	}
+	disable_phenotypes(input, output);
 	return last_phenotype;
 }
 
-std::shared_ptr<Phenotype> Topology::new_phenotype(
-		Phenotype::point const & input, Phenotype::point const & output) {
+Phenotype * Topology::new_phenotype(Phenotype::point const & input,
+		Phenotype::point const & output) {
 	double weight = (std::rand() % 100) / 100.0;
-	std::shared_ptr<Phenotype> phenotype = std::make_shared<Phenotype>(input,
-			output, weight);
+	Phenotype * phenotype = new Phenotype(input, output, weight);
 	add_relationship(phenotype);
 	return phenotype;
 }
 
-void Topology::new_mutation(std::shared_ptr<Phenotype> last_phenotype,
-		double const wealth) {
+void Topology::new_mutation(Phenotype * last_phenotype, double const wealth) {
 	Mutation mutation(last_phenotype, wealth);
 	mutations.push_back(mutation);
 }
@@ -176,7 +215,7 @@ void Topology::new_mutation(std::shared_ptr<Phenotype> last_phenotype,
 std::string Topology::parse_to_string() const {
 	std::string output = "[";
 	for (auto & it : relationships) {
-		for (std::shared_ptr<Phenotype> phenotype : it.second) {
+		for (Phenotype * phenotype : it.second) {
 			output += phenotype->to_string() + ",";
 		}
 	}
