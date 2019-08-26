@@ -8,11 +8,14 @@
 #include "AlpacaParser.h"
 #define online true
 
-namespace DataParser {
+namespace Alpaca {
 
-void AlpacaParser::parse_data(Response * res) {
+AlpacaParser::AlpacaParser(){
+}
+
+void AlpacaParser::parse_data(network::Response * res) {
 	json j = json::parse(res->body);
-	for (auto it : j["AAPL"]) {
+	for (auto & it : j["AAPL"]) {
 		double open = it["o"];
 		double close = it["c"];
 		double high = it["h"];
@@ -38,10 +41,10 @@ std::vector<stock::Candle*> & AlpacaParser::get_data() {
 
 void AlpacaParser::do_load_data(std::function<void()> & cb) {
 	callback = cb;
-	auto lambda = [this](Response * response) {
+	std::function<void(network::Response*)> && lambda = [this](network::Response * response) {
 		parse_data(response);
 	};
-	AlpacaServiceHTTP::get("/v1/bars/15Min?symbols=AAPL&limit=1000", lambda);
+	AlpacaDataService::get("/v1/bars/15Min?symbols=AAPL&limit=1000", lambda);
 }
 
 #else

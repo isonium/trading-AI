@@ -24,9 +24,10 @@ C_DEPS :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 src/AlpacaParser \
-src/AlpacaServiceHTTP \
+src/AlpacaServiceHTTPS \
 src/AlpacaServiceWS \
 src/Game \
+src/HTTPS \
 src/NeuralNetwork \
 src/Parser \
 src/Serializer \

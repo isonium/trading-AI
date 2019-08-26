@@ -9,17 +9,18 @@
 #define ALPACAPARSER_ALPACAPARSER_H_
 
 #include <nlohmann/json.hpp>
-#include "../AlpacaServiceHTTP/AlpacaServiceHTTP.h"
+#include "../AlpacaServiceHTTPS/AlpacaDataService.h"
 #include "../Parser/Parser.h"
 #include "../Stock/Stock.h"
 #include <vector>
 #include <functional>
 
-namespace DataParser {
+namespace Alpaca {
 using json = nlohmann::json;
 
 class AlpacaParser: public fetch::Parser {
 public:
+	AlpacaParser();
 	~AlpacaParser();
 
 	std::vector<stock::Candle*> & get_data();
@@ -29,7 +30,7 @@ private:
 	std::function<void()> callback;
 
 	void do_load_data(std::function<void()> & cb);
-	void parse_data(Response * res);
+	void parse_data(network::Response * res);
 };
 
 } /* namespace AlpacaParser */

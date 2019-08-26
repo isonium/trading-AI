@@ -14,9 +14,13 @@ namespace Trading {
 
 class LiveTrader: public Trader {
 public:
-	LiveTrader(long double const, Topology_ptr &, State *);
-	LiveTrader(Trader & trader);
+	LiveTrader(const long double, Topology_ptr &, State *);
+	explicit LiveTrader(Trader & trader);
 	~LiveTrader();
+
+private:
+	void buy_stock(stock::Stock &, const long);
+	void sell_stock(stock::Stock &, const long);
 };
 
 } /* namespace Trading */

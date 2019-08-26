@@ -51,10 +51,10 @@ void SimulationTrader::buy_stock(stock::Stock &_stock, const long quantity) {
 	}
 }
 
-void SimulationTrader::sell_stock(stock::Stock * const stock_ptr,
+void SimulationTrader::sell_stock(stock::Stock & stock,
 		const long quantity) {
-	portfolio->remove_stocks(stock_ptr->ticker, quantity);
-	bank += quantity * stock_ptr->value;
+	portfolio->remove_stocks(stock.ticker, quantity);
+	bank += quantity * stock.value;
 }
 
 void SimulationTrader::do_decide() {
@@ -74,7 +74,7 @@ void SimulationTrader::rebalance(const double new_ratio,
 	if (new_investments > 0) {
 		buy_stock(default_stock, new_investments);
 	} else if (new_investments < 0) {
-		sell_stock(&default_stock, -1 * new_investments);
+		sell_stock(default_stock, -1 * new_investments);
 	}
 }
 

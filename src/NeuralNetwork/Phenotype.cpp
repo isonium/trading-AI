@@ -9,6 +9,10 @@
 
 namespace NeuralNetwork {
 
+Phenotype::Phenotype(point const & input) :
+		Phenotype(input, .1) {
+}
+
 Phenotype::Phenotype(point const & input, double const weight) {
 	this->input[0] = input[0];
 	this->input[1] = input[1];
@@ -17,13 +21,18 @@ Phenotype::Phenotype(point const & input, double const weight) {
 }
 
 Phenotype::Phenotype(point const & input, point const & output,
-		double const weight) {
+		double const weight, const bool disabled) {
 	this->input[0] = input[0];
 	this->input[1] = input[1];
 	this->output[0] = output[0];
 	this->output[1] = output[1];
 	this->weight = weight;
-	this->disabled = false;
+	this->disabled = disabled;
+}
+
+Phenotype::Phenotype(point const & input, point const & output,
+		double const weight) :
+		Phenotype(input, output, weight, false) {
 }
 
 void Phenotype::set_weight(double const new_weight) {
@@ -47,7 +56,7 @@ double Phenotype::get_weight() const {
 	return weight;
 }
 
-void Phenotype::decrement_output(){
+void Phenotype::decrement_output() {
 	output[0]--;
 }
 

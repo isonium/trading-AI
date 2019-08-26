@@ -15,9 +15,10 @@ RM := rm
 -include src/Serializer/subdir.mk
 -include src/Parser/subdir.mk
 -include src/NeuralNetwork/subdir.mk
+-include src/HTTPS/subdir.mk
 -include src/Game/subdir.mk
 -include src/AlpacaServiceWS/subdir.mk
--include src/AlpacaServiceHTTP/subdir.mk
+-include src/AlpacaServiceHTTPS/subdir.mk
 -include src/AlpacaParser/subdir.mk
 -include src/subdir.mk
 -include subdir.mk

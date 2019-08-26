@@ -7,17 +7,13 @@
 
 #include "LiveTrading.h"
 
-namespace Trader {
+namespace Trading {
 
-LiveTrading::LiveTrading(const char * input_file) {
-	using json = nlohmann::json;
-	std::ifstream file(input_file);
-	json::parse(file);
-
+LiveTrading::LiveTrading(Topology_ptr topology) :
+		trader(100000.0, topology, state) {
 }
 
 LiveTrading::~LiveTrading() {
-	// TODO Auto-generated destructor stub
 }
 
 } /* namespace Trader */

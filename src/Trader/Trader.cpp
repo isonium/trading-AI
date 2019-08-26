@@ -8,7 +8,8 @@
 #include "Trader.h"
 
 namespace Trading {
-Trader::Trader(long double const  bank, Topology_ptr & brain_topology,
+
+Trader::Trader(long double const bank, Topology_ptr & brain_topology,
 		State * game_state) {
 	this->brain = new NeuralNetwork::NN(brain_topology);
 	this->portfolio = new stock::Portfolio();

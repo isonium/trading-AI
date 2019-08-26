@@ -18,6 +18,7 @@
 #include "Trader/Simulation.h"
 #include "Trader/LiveTrading.h"
 #include "AlpacaParser/AlpacaParser.h"
+#include "AlpacaServiceHTTPS/AlpacaDataService.h"
 
 struct InvalidArguments: public std::exception {
 	std::string invalid;
@@ -49,7 +50,7 @@ struct InvalidArguments: public std::exception {
 };
 
 void train() {
-	DataParser::AlpacaParser parser;
+	Alpaca::AlpacaParser parser;
 	std::function<void()> && lambda = [&parser]() {
 		std::vector<stock::Candle *> & data = parser.get_data();
 		Trading::Simulation * sim = new Trading::Simulation(data);
@@ -57,6 +58,15 @@ void train() {
 		train.start();
 	};
 	parser.load_data(lambda);
+}
+
+void start_bot(const char * input_file) {
+	using json = nlohmann::json;
+
+	std::ifstream file(input_file);
+	json j = json::parse(file);
+	Topology_ptr topology = std::make_unique<Topology>(j);
+	Trading::LiveTrading game (topology);
 }
 
 int main(int const argc, const char * argv[]) {
@@ -71,7 +81,7 @@ int main(int const argc, const char * argv[]) {
 		if (argc != 3) {
 			throw InvalidArguments(3, argc);
 		}
-		Trader::LiveTrading game(argv[2]);
+		start_bot(argv[2]);
 	} else {
 		throw InvalidArguments(action);
 	}

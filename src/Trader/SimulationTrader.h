@@ -22,7 +22,7 @@ public:
 private:
 	void rebalance(const double, stock::Stock &);
 	void buy_stock(stock::Stock &, const long);
-	void sell_stock(stock::Stock * const, const long);
+	void sell_stock(stock::Stock &, const long);
 	void update_assets();
 
 	double do_get_result() const;

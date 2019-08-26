@@ -9,8 +9,8 @@
 
 namespace Trading {
 
-LiveTrader::LiveTrader(long double const bank,
-		Topology_ptr & brain_topology, State * game_state) :
+LiveTrader::LiveTrader(const long double bank, Topology_ptr & brain_topology,
+		State * game_state) :
 		Trader(bank, brain_topology, game_state) {
 }
 
@@ -19,6 +19,14 @@ LiveTrader::LiveTrader(Trader & trader) :
 }
 
 LiveTrader::~LiveTrader() {
+}
+
+void LiveTrader::buy_stock(stock::Stock & stock, const long quantity) {
+
+}
+
+void LiveTrader::sell_stock(stock::Stock & stock, const long quantity) {
+
 }
 
 } /* namespace Trading */

@@ -11,6 +11,12 @@ constexpr unsigned MAX_ITERATIONS = 5;
 constexpr unsigned MAX_UNFRUITFUL = 3;
 
 namespace NeuralNetwork {
+Topology::Topology() {
+}
+
+Topology::Topology(nlohmann::json & j) {
+	from_json(j);
+}
 
 Topology::Topology(Topology const & base) {
 	copy(base);
@@ -48,6 +54,17 @@ void Topology::copy(Topology const & base) {
 			Phenotype * copy = new Phenotype(*phenotype);
 			add_to_relationships_map(copy);
 		}
+	}
+}
+
+void Topology::from_json(nlohmann::json & j) {
+	for (auto & it : j) {
+		Phenotype::point input = { it["input"][0], it["input"][1] };
+		Phenotype::point output = { it["output"][0], it["output"][1] };
+		double const weight = it["weight"];
+		bool disabled = it["disabled"];
+		Phenotype * phenotype = new Phenotype(input, output, weight, disabled);
+		add_relationship(phenotype);
 	}
 }
 

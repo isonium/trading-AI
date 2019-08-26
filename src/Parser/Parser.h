@@ -10,8 +10,8 @@
 
 #include <functional>
 #include <vector>
-#include "../AlpacaServiceHTTP/AlpacaServiceHTTP.h"
 #include "../Game/Game.h"
+#include "../HTTPS/HTTPS.h"
 
 namespace fetch {
 
@@ -23,7 +23,7 @@ public:
 
 private:
 	virtual void do_load_data(std::function<void()> & cb) = 0;
-	virtual void parse_data(Response * res) = 0;
+	virtual void parse_data(network::Response * res) = 0;
 };
 
 } /* namespace fetch */

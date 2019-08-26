@@ -18,9 +18,10 @@ class Phenotype: public Serializer::Serializable {
 public:
 	using point = std::array<int, 2>;
 
-	explicit Phenotype(point const & input, double const weight);
-	explicit Phenotype(point const & input): Phenotype(input, .1) {}
-	explicit Phenotype(point const & input, point const & output, double const weight);
+	explicit Phenotype(point const &);
+	explicit Phenotype(point const &, double const);
+	explicit Phenotype(point const &, point const &, double const);
+	explicit Phenotype(point const &, point const &, double const, const bool);
 
 	void set_weight(double const gradient);
 	void set_output(int const first, int const second);
@@ -57,6 +58,5 @@ template<> struct hash<NeuralNetwork::Phenotype::point> {
 	}
 };
 }
-
 
 #endif /* NEURALNETWORK_PHENOTYPE_H_ */

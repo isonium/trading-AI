@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <unordered_map>
+#include <nlohmann/json.hpp>
 
 #include "Mutation.h"
 #include "Neuron.h" // Layer
@@ -26,8 +27,9 @@ namespace NeuralNetwork {
 class Topology: public Serializer::Serializable {
 public:
 	using relationships_map = std::unordered_map<Phenotype::point, std::vector<Phenotype *>>;
-	Topology() {
-	}
+
+	Topology();
+	explicit Topology(nlohmann::json &);
 	explicit Topology(Topology const &); // Private copy constructor
 	~Topology();
 	Topology & operator=(Topology const &);
@@ -51,14 +53,18 @@ private:
 	std::vector<Mutation> mutations = { };
 
 	void copy(Topology const & base);
+	void from_json(nlohmann::json &);
+
 	void add_to_relationships_map(Phenotype * phenotype);
 	void disable_phenotypes(Phenotype::point const &, Phenotype::point const &);
 	bool const path_overrides(Phenotype::point const &,
 			Phenotype::point const &);
+	void resize(int const new_size);
+
 	std::shared_ptr<Topology> evolve(double const);
 	Phenotype * mutate();
 	void new_mutation(Phenotype *, double const wealth);
-	void resize(int const new_size);
+
 
 	Phenotype * new_phenotype(Phenotype::point const & input,
 			Phenotype::point const & output);

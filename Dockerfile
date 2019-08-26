@@ -13,7 +13,6 @@ RUN /bin/sh bootstrap.sh
 RUN ./b2
 WORKDIR /usr/include
 RUN cp -r boost_1_70_0/boost/ .
-#RUN rm boost_1_70_0.tar.bz2
 
 RUN git clone https://github.com/nlohmann/json.git
 RUN mv json/include/nlohmann/ /usr/include/

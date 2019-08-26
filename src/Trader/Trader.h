@@ -48,7 +48,7 @@ protected:
 	void copy(Trader &);
 
 	virtual void buy_stock(stock::Stock &, const long) = 0;
-	virtual void sell_stock(stock::Stock * const, const long) = 0;
+	virtual void sell_stock(stock::Stock &, const long) = 0;
 };
 
 using Trader_ptr = std::unique_ptr<Trader>;

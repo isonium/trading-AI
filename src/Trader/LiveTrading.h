@@ -10,13 +10,20 @@
 
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include "State.h"
+#include "LiveTrader.h"
+#include "../NeuralNetwork/Topology.h"
 
-namespace Trader {
+namespace Trading {
 
 class LiveTrading {
 public:
-	LiveTrading(const char * input_file);
+	LiveTrading(Topology_ptr topology);
 	virtual ~LiveTrading();
+
+private:
+	State * state = NULL;
+	LiveTrader trader;
 };
 
 } /* namespace Trader */
